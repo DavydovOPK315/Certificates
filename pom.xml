@@ -21,7 +21,6 @@
 	</properties>
 	<dependencies>
 
-
 		<!-- for auto-update without restarting app -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

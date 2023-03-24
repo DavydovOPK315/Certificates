@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TagService {
 
-    //    @Autowired
     public final TagDAO tagDAO;
 
     @Transactional

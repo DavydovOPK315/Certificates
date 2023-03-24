@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 public class TagResponseModel {
 
     private int id;
-
     private String name;
 
 }

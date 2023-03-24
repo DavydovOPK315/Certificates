@@ -1,26 +1,13 @@
 package com.epam.esm.entity;
 
+import lombok.Data;
+
 import java.util.Objects;
 
+@Data
 public class CertificateHasTag {
     private int giftCertificatesId;
     private int tagId;
-
-    public int getGiftCertificatesId() {
-        return giftCertificatesId;
-    }
-
-    public void setGiftCertificatesId(int giftCertificatesId) {
-        this.giftCertificatesId = giftCertificatesId;
-    }
-
-    public int getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(int tagId) {
-        this.tagId = tagId;
-    }
 
     @Override
     public String toString() {
