@@ -1,8 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dao.TagDAO;
+import com.epam.esm.dto.TagRequestModel;
 import com.epam.esm.dto.TagResponseModel;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,36 +10,62 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Resource that provides an API for interacting with Tag entity
+ *
+ * @author Denis Davydov
+ * @version 2.0
+ */
 @RestController
 @RequestMapping("/tags")
 @RequiredArgsConstructor
 public class TagController {
-
-    private final TagDAO tagDAO;
     private final TagService tagService;
 
+    /**
+     * To get tag by id
+     *
+     * @param id tag id
+     * @return return ResponseEntity with found tag
+     */
     @GetMapping("/{id}")
     public ResponseEntity<TagResponseModel> findById(@PathVariable int id) {
         TagResponseModel tag = tagService.getTagById(id);
         return ResponseEntity.ok(tag);
     }
 
+    /**
+     * To get all tags
+     *
+     * @return return ResponseEntity with found tags
+     */
     @GetMapping
-    public ResponseEntity<List<Tag>> findAll() {
-        List<Tag> tags = tagDAO.index();
+    public ResponseEntity<List<TagResponseModel>> findAll() {
+        List<TagResponseModel> tags = tagService.getTags();
         return ResponseEntity.ok(tags);
     }
 
+    /**
+     * To create tag
+     *
+     * @param tagRequestModel tag request model
+     * @return return status of operation
+     */
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody Tag tag) {
-        tagDAO.save(tag);
+    public ResponseEntity<Object> create(@RequestBody TagRequestModel tagRequestModel) {
+        tagService.create(tagRequestModel);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-
+    /**
+     * To delete tag by id
+     *
+     * @param id tag id
+     * @return return status of operation
+     */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> delete(@PathVariable int id) {
-        tagDAO.delete(id);
+        tagService.remove(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

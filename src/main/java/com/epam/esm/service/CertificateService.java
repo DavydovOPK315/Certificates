@@ -1,0 +1,135 @@
+package com.epam.esm.service;
+
+import com.epam.esm.dao.CertificateDAO;
+import com.epam.esm.dto.CertificateRequestModel;
+import com.epam.esm.dto.CertificateResponseModel;
+import com.epam.esm.dto.TagRequestModel;
+import com.epam.esm.dto.TagResponseModel;
+import com.epam.esm.entity.Certificate;
+import com.epam.esm.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CertificateService {
+    private final CertificateDAO certificateDAO;
+    private final ModelMapper modelMapper;
+    private final TagService tagService;
+    private final CertificateHasTagService certificateHasTagService;
+
+    @Transactional
+    public void create(CertificateRequestModel certificateRequestModel) {
+        Certificate certificate = modelMapper.map(certificateRequestModel, Certificate.class);
+        String date = LocalDateTime.now().toString();
+        certificate.setCreateDate(date);
+        certificate.setLastUpdateDate(date);
+        List<TagRequestModel> newTagRequestModels = certificateRequestModel.getTagRequestModels();
+        List<TagResponseModel> actualTagRequestModels = tagService.getTags();
+
+        List<TagRequestModel> addTags = newTagRequestModels
+                        .stream()
+                        .filter(t1 -> actualTagRequestModels.stream().noneMatch(t2 -> t1.getName().equals(t2.getName()))).collect(Collectors.toList());
+
+        addTags.forEach(tagService::create);
+        certificateDAO.create(certificate);
+
+        List<TagResponseModel> boundTagRequestModels = tagService.getTags()
+                .stream()
+                .filter(t -> newTagRequestModels.stream().anyMatch(t2 -> t.getName().equals(t2.getName())))
+                .collect(Collectors.toList());
+
+        Certificate c = certificateDAO.getByName(certificate.getName());
+        boundTagRequestModels.forEach(t -> certificateHasTagService.create(c.getId(), t.getId()));
+    }
+
+    @Transactional
+    public void update(int id, CertificateRequestModel certificateRequestModel) {
+        Certificate certificate = certificateDAO.getById(id);
+
+        if (certificate == null) {
+            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+        }
+        List<TagRequestModel> newTags = certificateRequestModel.getTagRequestModels();
+        modelMapper.map(certificateRequestModel, certificate);
+        certificateHasTagService.remove(id);
+        newTags.forEach(tag -> certificateHasTagService.create(id, tag.getId()));
+        String date = LocalDateTime.now().toString();
+        certificate.setLastUpdateDate(date);
+        certificateDAO.update(certificate);
+    }
+
+    public CertificateResponseModel getCertificateById(int id) {
+        Certificate certificate = certificateDAO.getById(id);
+
+        if (certificate == null) {
+            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+        }
+        CertificateResponseModel certificateResponseModel = modelMapper.map(certificate, CertificateResponseModel.class);
+        List<TagResponseModel> tagResponseModels = tagService.getTagsByCertificateId(certificate.getId());
+        certificateResponseModel.setTagResponseModels(tagResponseModels);
+        return certificateResponseModel;
+    }
+
+    public List<CertificateResponseModel> getAll() {
+        List<Certificate> certificateList = certificateDAO.getAll();
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+        return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    public List<CertificateResponseModel> getAllByTagName(String tagName) {
+        List<Certificate> certificateList = certificateDAO.getAllByTagName(tagName);
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+        return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    public List<CertificateResponseModel> getAllByName(String name) {
+        List<Certificate> certificateList = certificateDAO.getAllByName(name);
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+        return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    public List<CertificateResponseModel> getAllByDescription(String description) {
+        List<Certificate> certificateList = certificateDAO.getAllByDescription(description);
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+        return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    public List<CertificateResponseModel> getAllAndSortByDateAndName(String dateOrder, String nameOrder) {
+        List<Certificate> certificateList;
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+        String value = dateOrder + " " + nameOrder;
+
+        switch (value.toLowerCase()) {
+            case ("desc desc"):
+                certificateList = certificateDAO.getAllAndSortByDateDescAndNameDesc();
+                break;
+            case ("asc asc"):
+                certificateList = certificateDAO.getAllAndSortByDateAscAndNameAsc();
+                break;
+            case ("desc asc"):
+                certificateList = certificateDAO.getAllAndSortByDateDeskAndNameAsc();
+                break;
+            case ("asc desc"):
+                certificateList = certificateDAO.getAllAndSortByDateAscAndNameDesc();
+                break;
+            default:
+                return resultList;
+        }
+        return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    private List<CertificateResponseModel> getCertificateResponseModels(List<Certificate> certificateList, List<CertificateResponseModel> resultList) {
+        if (certificateList.size() != 0) {
+            certificateList.forEach(certificate -> resultList.add(getCertificateById(certificate.getId())));
+        }
+        return resultList;
+    }
+}

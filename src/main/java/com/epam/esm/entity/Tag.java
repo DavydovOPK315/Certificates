@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Data
 public class Tag {
-    private int id;
+    private Integer id;
     private String name;
 
     @Override
@@ -22,7 +22,7 @@ public class Tag {
         if (this == o) return true;
         if (!(o instanceof Tag)) return false;
         Tag tag = (Tag) o;
-        return getId() == tag.getId() && Objects.equals(getName(), tag.getName());
+        return Objects.equals(getId(), tag.getId()) && Objects.equals(getName(), tag.getName());
     }
 
     @Override

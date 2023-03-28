@@ -6,11 +6,11 @@ import java.util.Objects;
 
 @Data
 public class Certificate {
-    private int id;
+    private Integer id;
     private String name;
     private String description;
-    private int price;
-    private int duration;
+    private Integer price;
+    private Integer duration;
     private String createDate;
     private String lastUpdateDate;
 
@@ -32,7 +32,7 @@ public class Certificate {
         if (this == o) return true;
         if (!(o instanceof Certificate)) return false;
         Certificate that = (Certificate) o;
-        return getId() == that.getId() && getPrice() == that.getPrice() && getDuration() == that.getDuration() && Objects.equals(getName(), that.getName()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getCreateDate(), that.getCreateDate()) && Objects.equals(getLastUpdateDate(), that.getLastUpdateDate());
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getPrice(), that.getPrice()) && Objects.equals(getDuration(), that.getDuration()) && Objects.equals(getCreateDate(), that.getCreateDate()) && Objects.equals(getLastUpdateDate(), that.getLastUpdateDate());
     }
 
     @Override
