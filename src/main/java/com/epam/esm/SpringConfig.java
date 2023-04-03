@@ -25,7 +25,6 @@ import javax.sql.DataSource;
 @EnableWebMvc
 @RequiredArgsConstructor
 public class SpringConfig {
-
     private final DataSource dataSource;
     private final ApplicationContext applicationContext;
 

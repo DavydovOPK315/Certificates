@@ -102,7 +102,7 @@ public class CertificateController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody CertificateRequestModel certificateRequestModel) {
         certificateService.create(certificateRequestModel);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -115,6 +115,18 @@ public class CertificateController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable int id, @RequestBody CertificateRequestModel certificateRequestModel) {
         certificateService.update(id, certificateRequestModel);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * To delete certificate
+     *
+     * @param id id
+     * @return return status of operation
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable int id){
+        certificateService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

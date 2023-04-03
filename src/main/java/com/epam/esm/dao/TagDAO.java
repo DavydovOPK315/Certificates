@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -8,13 +9,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-// CRD operations for Tag
 @Component
 @RequiredArgsConstructor
 public class TagDAO {
     private final JdbcTemplate jdbcTemplate;
 
-    public List<Tag> index() {
+    public List<Tag> getAll() {
         return jdbcTemplate.query("SELECT * FROM tag", new BeanPropertyRowMapper<>(Tag.class));
     }
 
@@ -24,11 +24,7 @@ public class TagDAO {
     }
 
     public void create(Tag tag) {
-        jdbcTemplate.update("INSERT INTO tag VALUES(?, ?)", 0, tag.getName());
-    }
-
-    public void update(int id, Tag tag) {
-        jdbcTemplate.update("UPDATE tag SET name=? WHERE id=?", tag.getName(), id);
+        jdbcTemplate.update("INSERT INTO tag (`name`) VALUES(?)", tag.getName());
     }
 
     public void delete(int id) {

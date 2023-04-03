@@ -12,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
- * Controller that
+ * Controller that handle all exceptions
  *
  * @author Denis Davydov
  * @version 2.0
@@ -40,11 +40,11 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     /**
      * To handle SQLIntegrityConstraintViolationException
+     * This exception handler is invoked if adding with similar name or deleting certificate or tag from db which are associated
      *
      * @return return ResponseEntity with custom message, http headers and http status
-     * @apiNote This exception handler is invoked if adding with similar name or deleting certificate or tag from db which are associated
      */
-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    @ExceptionHandler({SQLIntegrityConstraintViolationException.class, NullPointerException.class})
     public ResponseEntity<CustomMessage> handleSQLIntegrityConstraintViolationException() {
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage("Not Acceptable due to wrong action or data");
@@ -56,10 +56,10 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     /**
      * To handle custom ResourceNotFoundException
+     * This exception handler is invoked if the entity is not found
      *
      * @param ex exception
      * @return return ResponseEntity with custom message, http headers and http status
-     * @apiNote This exception handler is invoked if the entity is not found
      * @see ResourceNotFoundException
      */
     @ExceptionHandler(ResourceNotFoundException.class)

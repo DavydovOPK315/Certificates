@@ -31,23 +31,38 @@ public class CertificateService {
         String date = LocalDateTime.now().toString();
         certificate.setCreateDate(date);
         certificate.setLastUpdateDate(date);
-        List<TagRequestModel> newTagRequestModels = certificateRequestModel.getTagRequestModels();
-        List<TagResponseModel> actualTagRequestModels = tagService.getTags();
 
-        List<TagRequestModel> addTags = newTagRequestModels
-                        .stream()
-                        .filter(t1 -> actualTagRequestModels.stream().noneMatch(t2 -> t1.getName().equals(t2.getName()))).collect(Collectors.toList());
-
-        addTags.forEach(tagService::create);
         certificateDAO.create(certificate);
-
-        List<TagResponseModel> boundTagRequestModels = tagService.getTags()
-                .stream()
-                .filter(t -> newTagRequestModels.stream().anyMatch(t2 -> t.getName().equals(t2.getName())))
-                .collect(Collectors.toList());
-
         Certificate c = certificateDAO.getByName(certificate.getName());
+        List<TagRequestModel> newTagRequestModels = certificateRequestModel.getTagRequestModels();
+
+        if (newTagRequestModels == null || newTagRequestModels.isEmpty()) {
+            return;
+        }
+        newTagRequestModels.stream()
+                .filter(t1 -> tagService.getAll()
+                        .stream()
+                        .noneMatch(t2 -> t1.getName().equals(t2.getName())))
+                .forEach(tagService::create);
+
+        List<TagResponseModel> boundTagRequestModels = tagService.getAll()
+                .stream()
+                .filter(t -> newTagRequestModels
+                        .stream()
+                        .anyMatch(t2 -> t.getName().equals(t2.getName())))
+                .collect(Collectors.toList());
         boundTagRequestModels.forEach(t -> certificateHasTagService.create(c.getId(), t.getId()));
+    }
+
+    @Transactional
+    public void delete(int id) {
+        Certificate certificate = certificateDAO.getById(id);
+
+        if (certificate == null) {
+            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+        }
+        certificateHasTagService.delete(id);
+        certificateDAO.delete(id);
     }
 
     @Transactional
@@ -57,11 +72,27 @@ public class CertificateService {
         if (certificate == null) {
             throw new ResourceNotFoundException("Certificate not exist with id: " + id);
         }
-        List<TagRequestModel> newTags = certificateRequestModel.getTagRequestModels();
         modelMapper.map(certificateRequestModel, certificate);
-        certificateHasTagService.remove(id);
-        newTags.forEach(tag -> certificateHasTagService.create(id, tag.getId()));
+        certificateHasTagService.delete(id);
+        List<TagRequestModel> newTags = certificateRequestModel.getTagRequestModels();
+
+        if (newTags != null && newTags.size() > 0) {
+            List<TagResponseModel> actualTagResponseModels = tagService.getAll();
+            newTags.stream()
+                    .filter(t1 -> actualTagResponseModels
+                            .stream()
+                            .noneMatch(t2 -> t1.getName().equals(t2.getName())))
+                    .forEach(tagService::create);
+
+            List<TagResponseModel> tagsToAdd = tagService.getAll()
+                    .stream().filter(t1 -> newTags
+                            .stream()
+                            .anyMatch(t2 -> t1.getName().equals(t2.getName())))
+                    .collect(Collectors.toList());
+            tagsToAdd.forEach(tag -> certificateHasTagService.create(id, tag.getId()));
+        }
         String date = LocalDateTime.now().toString();
+        certificate.setId(id);
         certificate.setLastUpdateDate(date);
         certificateDAO.update(certificate);
     }

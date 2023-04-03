@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateRequestModel {
+    private Integer id;
     private String name;
     private String description;
     private Integer price;

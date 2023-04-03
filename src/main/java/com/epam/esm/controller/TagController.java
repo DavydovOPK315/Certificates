@@ -41,7 +41,7 @@ public class TagController {
      */
     @GetMapping
     public ResponseEntity<List<TagResponseModel>> findAll() {
-        List<TagResponseModel> tags = tagService.getTags();
+        List<TagResponseModel> tags = tagService.getAll();
         return ResponseEntity.ok(tags);
     }
 
@@ -54,7 +54,7 @@ public class TagController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody TagRequestModel tagRequestModel) {
         tagService.create(tagRequestModel);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -65,7 +65,7 @@ public class TagController {
      */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> delete(@PathVariable int id) {
-        tagService.remove(id);
-        return ResponseEntity.ok(HttpStatus.OK);
+        tagService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

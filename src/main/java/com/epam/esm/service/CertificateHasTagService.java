@@ -13,7 +13,7 @@ public class CertificateHasTagService {
         certificateHasTagDAO.create(giftCertificatesId, tagId);
     }
 
-    public void remove(int giftCertificatesId) {
+    public void delete(int giftCertificatesId) {
         certificateHasTagDAO.delete(giftCertificatesId);
     }
 }
