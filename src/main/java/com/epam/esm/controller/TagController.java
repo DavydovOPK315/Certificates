@@ -26,7 +26,7 @@ public class TagController {
      * To get tag by id
      *
      * @param id tag id
-     * @return return ResponseEntity with found tag
+     * @return ResponseEntity with found tag
      */
     @GetMapping("/{id}")
     public ResponseEntity<TagResponseModel> findById(@PathVariable int id) {
@@ -37,7 +37,7 @@ public class TagController {
     /**
      * To get all tags
      *
-     * @return return ResponseEntity with found tags
+     * @return ResponseEntity with found tags
      */
     @GetMapping
     public ResponseEntity<List<TagResponseModel>> findAll() {
@@ -49,7 +49,7 @@ public class TagController {
      * To create tag
      *
      * @param tagRequestModel tag request model
-     * @return return status of operation
+     * @return status of operation
      */
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody TagRequestModel tagRequestModel) {
@@ -61,7 +61,7 @@ public class TagController {
      * To delete tag by id
      *
      * @param id tag id
-     * @return return status of operation
+     * @return status of operation
      */
     @DeleteMapping("{id}")
     public ResponseEntity<Object> delete(@PathVariable int id) {

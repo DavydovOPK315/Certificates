@@ -1,3 +1,10 @@
-.idea/
+HELP.md
 target/
-.mvn/
+javadoc/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.idea
+*.iml
+*.iws
+*.ipr
