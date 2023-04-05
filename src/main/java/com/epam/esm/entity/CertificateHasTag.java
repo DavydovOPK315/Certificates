@@ -1,32 +1,13 @@
 package com.epam.esm.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Objects;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CertificateHasTag {
     private int giftCertificatesId;
     private int tagId;
-
-    @Override
-    public String toString() {
-        return "CertificateHasTag{" +
-                "giftCertificatesId=" + giftCertificatesId +
-                ", tagId=" + tagId +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CertificateHasTag)) return false;
-        CertificateHasTag that = (CertificateHasTag) o;
-        return getGiftCertificatesId() == that.getGiftCertificatesId() && getTagId() == that.getTagId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getGiftCertificatesId(), getTagId());
-    }
 }
