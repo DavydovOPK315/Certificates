@@ -29,7 +29,7 @@ public class TagController {
      * @return ResponseEntity with found tag
      */
     @GetMapping("/{id}")
-    public ResponseEntity<TagResponseModel> findById(@PathVariable int id) {
+    public ResponseEntity<TagResponseModel> findById(@PathVariable long id) {
         TagResponseModel tag = tagService.getTagById(id);
         return ResponseEntity.ok(tag);
     }
@@ -52,6 +52,7 @@ public class TagController {
      * @return status of operation
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> create(@RequestBody TagRequestModel tagRequestModel) {
         tagService.create(tagRequestModel);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -64,7 +65,8 @@ public class TagController {
      * @return status of operation
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> delete(@PathVariable int id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Object> delete(@PathVariable long id) {
         tagService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

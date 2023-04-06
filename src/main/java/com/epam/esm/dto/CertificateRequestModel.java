@@ -10,10 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateRequestModel {
-    private Integer id;
+    private Long id;
     private String name;
     private String description;
-    private Integer price;
+    private Long price;
     private Integer duration;
     private List<TagRequestModel> tagRequestModels;
 }

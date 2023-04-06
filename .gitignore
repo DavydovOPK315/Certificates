@@ -2,6 +2,7 @@
 .mvn/
 target/
 javadoc/
+jparepository/
 
 *.iml
 *.iws

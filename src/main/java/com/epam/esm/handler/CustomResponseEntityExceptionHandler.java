@@ -2,6 +2,7 @@ package com.epam.esm.handler;
 
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.handler.entity.CustomMessage;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @param request request
      * @return return ResponseEntity with custom message, http headers and http status
      */
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler({IllegalArgumentException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<CustomMessage> handleAnyException(Exception ex, WebRequest request) {
         String k = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
         CustomMessage customMessage = new CustomMessage();

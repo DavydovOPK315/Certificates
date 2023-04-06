@@ -41,7 +41,7 @@ public class CertificateController {
      * @return ResponseEntity with found certificate
      */
     @GetMapping("/{id}")
-    public ResponseEntity<CertificateResponseModel> findById(@PathVariable int id) {
+    public ResponseEntity<CertificateResponseModel> findById(@PathVariable long id) {
         CertificateResponseModel certificate = certificateService.getCertificateById(id);
         return ResponseEntity.ok(certificate);
     }
@@ -114,7 +114,7 @@ public class CertificateController {
      */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Object> update(@PathVariable int id, @RequestBody CertificateRequestModel certificateRequestModel) {
+    public ResponseEntity<Object> update(@PathVariable long id, @RequestBody CertificateRequestModel certificateRequestModel) {
         certificateService.update(id, certificateRequestModel);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
