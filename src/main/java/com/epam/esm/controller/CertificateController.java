@@ -4,12 +4,16 @@ import com.epam.esm.dto.CertificateRequestModel;
 import com.epam.esm.dto.CertificateResponseModel;
 import com.epam.esm.service.CertificateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Resource that provides an API for interacting with Certificate entity
@@ -41,8 +45,14 @@ public class CertificateController {
      * @return ResponseEntity with found certificate
      */
     @GetMapping("/{id}")
-    public ResponseEntity<CertificateResponseModel> findById(@PathVariable long id) {
+    public ResponseEntity<CertificateResponseModel> getById(@PathVariable long id) {
         CertificateResponseModel certificate = certificateService.getCertificateById(id);
+        Link selfLink = linkTo(CertificateController.class).slash(id).withSelfRel();
+        Link allCertificatesLink = linkTo(methodOn(CertificateController.class)
+                .getAll()).withRel("allCertificates");
+        Link allCertificatesByTagLink = linkTo(methodOn(CertificateController.class)
+                .getAllByTagName("tag1")).withRel("allCertificatesByTag");
+        certificate.add(selfLink, allCertificatesLink, allCertificatesByTagLink);
         return ResponseEntity.ok(certificate);
     }
 
@@ -53,7 +63,7 @@ public class CertificateController {
      * @return ResponseEntity with found certificates
      */
     @GetMapping("/tag/{tagName}")
-    public ResponseEntity<List<CertificateResponseModel>> findAllByTagName(@PathVariable String tagName) {
+    public ResponseEntity<List<CertificateResponseModel>> getAllByTagName(@PathVariable String tagName) {
         List<CertificateResponseModel> certificates = certificateService.getAllByTagName(tagName);
         return ResponseEntity.ok(certificates);
     }
@@ -66,7 +76,7 @@ public class CertificateController {
      * @return ResponseEntity with found certificates
      */
     @GetMapping("/search")
-    public ResponseEntity<List<CertificateResponseModel>> findAllByNameOrDescription(@RequestParam(required = false) String name,
+    public ResponseEntity<List<CertificateResponseModel>> getAllByNameOrDescription(@RequestParam(required = false) String name,
                                                                                      @RequestParam(required = false) String description) {
         List<CertificateResponseModel> certificates = new ArrayList<>();
 

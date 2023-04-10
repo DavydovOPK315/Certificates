@@ -1,12 +1,13 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,28 +17,19 @@ public class Order implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date")
-    private String date;
+    @Column(name = "create_date")
+    private String createDate;
 
     @Column(name = "price")
     private Long price;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gift_certificates_id")
+    @JsonBackReference
     private Certificate certificate;
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", date='" + date + '\'' +
-                ", price=" + price +
-                ", user=" + user +
-                ", certificate=" + certificate +
-                '}';
-    }
 }

@@ -1,10 +1,15 @@
 package com.epam.esm.entity;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "user")
@@ -27,9 +32,22 @@ public class User implements Serializable {
     @Column(name = "email")
     private String email;
 
-    @OneToMany
-    @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Order> orders;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getLogin(), user.getLogin()) && Objects.equals(getPassword(), user.getPassword()) && Objects.equals(getEmail(), user.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
     @Override
     public String toString() {
@@ -38,7 +56,6 @@ public class User implements Serializable {
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", orders=" + orders +
                 '}';
     }
 }

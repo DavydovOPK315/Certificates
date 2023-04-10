@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CertificateService {
+    public static final String CERTIFICATE_NOT_EXIST_WITH_ID = "Certificate not exist with id: ";
     private final CertificateRepository certificateRepository;
     private final ModelMapper modelMapper;
     private final TagService tagService;
@@ -55,7 +56,7 @@ public class CertificateService {
         Certificate certificate = certificateRepository.findById(id);
 
         if (certificate == null) {
-            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
         }
         certificateRepository.deleteById(id);
     }
@@ -64,7 +65,7 @@ public class CertificateService {
         Certificate certificate = certificateRepository.findById(id);
 
         if (certificate == null) {
-            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
         }
         Long price = certificateRequestModel.getPrice();
         Integer duration = certificateRequestModel.getDuration();
@@ -100,7 +101,7 @@ public class CertificateService {
         Certificate certificate = certificateRepository.findById(id);
 
         if (certificate == null) {
-            throw new ResourceNotFoundException("Certificate not exist with id: " + id);
+            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
         }
         CertificateResponseModel certificateResponseModel = modelMapper.map(certificate, CertificateResponseModel.class);
         List<TagResponseModel> tagResponseModels = certificate.getTags().stream()
@@ -159,7 +160,7 @@ public class CertificateService {
     }
 
     private List<CertificateResponseModel> getCertificateResponseModels(List<Certificate> certificateList, List<CertificateResponseModel> resultList) {
-        if (certificateList.size() != 0) {
+        if (!certificateList.isEmpty()) {
             certificateList.forEach(certificate -> resultList.add(getCertificateById(certificate.getId())));
         }
         return resultList;

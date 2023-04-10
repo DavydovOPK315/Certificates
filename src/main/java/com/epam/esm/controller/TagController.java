@@ -23,26 +23,26 @@ public class TagController {
     private final TagService tagService;
 
     /**
+     * To get all tags
+     *
+     * @return ResponseEntity with found tags
+     */
+    @GetMapping
+    public ResponseEntity<List<TagResponseModel>> getAll() {
+        List<TagResponseModel> tags = tagService.getAll();
+        return ResponseEntity.ok(tags);
+    }
+
+    /**
      * To get tag by id
      *
      * @param id tag id
      * @return ResponseEntity with found tag
      */
     @GetMapping("/{id}")
-    public ResponseEntity<TagResponseModel> findById(@PathVariable long id) {
+    public ResponseEntity<TagResponseModel> getById(@PathVariable long id) {
         TagResponseModel tag = tagService.getTagById(id);
         return ResponseEntity.ok(tag);
-    }
-
-    /**
-     * To get all tags
-     *
-     * @return ResponseEntity with found tags
-     */
-    @GetMapping
-    public ResponseEntity<List<TagResponseModel>> findAll() {
-        List<TagResponseModel> tags = tagService.getAll();
-        return ResponseEntity.ok(tags);
     }
 
     /**

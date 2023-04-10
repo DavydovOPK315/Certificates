@@ -1,13 +1,16 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -41,6 +44,7 @@ public class Certificate implements Serializable {
     private String lastUpdateDate;
 
     @OneToMany(mappedBy = "certificate")
+    @JsonManagedReference
     private List<Order> orders;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -62,5 +66,18 @@ public class Certificate implements Serializable {
                 ", lastUpdateDate='" + lastUpdateDate + '\'' +
                 ", tags=" + tags +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Certificate that = (Certificate) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

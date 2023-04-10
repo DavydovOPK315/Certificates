@@ -34,9 +34,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage("Requested resource not found (id = " + k + ")");
         customMessage.setErrorCode(Integer.parseInt("404" + k));
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -45,14 +43,26 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      *
      * @return return ResponseEntity with custom message, http headers and http status
      */
-    @ExceptionHandler({SQLIntegrityConstraintViolationException.class, NullPointerException.class})
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<CustomMessage> handleSQLIntegrityConstraintViolationException() {
         CustomMessage customMessage = new CustomMessage();
-        customMessage.setErrorMessage("Not Acceptable due to wrong action or data");
+        customMessage.setErrorMessage("Not Acceptable due to wrong action or data for db");
         customMessage.setErrorCode(406);
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    /**
+     * To handle NullPointerException
+     *
+     * @param ex Exception
+     * @return return ResponseEntity with custom message, http headers and http status
+     */
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<CustomMessage> handleNullPointerException(Exception ex) {
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setErrorMessage(ex.getMessage());
+        customMessage.setErrorCode(406);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     /**
@@ -68,8 +78,6 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage(ex.getMessage());
         customMessage.setErrorCode(404);
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 }
