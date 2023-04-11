@@ -41,7 +41,7 @@ public class CertificateController {
     /**
      * To get certificate by id
      *
-     * @param id tag id
+     * @param id certificate id
      * @return ResponseEntity with found certificate
      */
     @GetMapping("/{id}")
@@ -85,6 +85,17 @@ public class CertificateController {
         } else if (description != null) {
             certificates = certificateService.getAllByDescription(description);
         }
+        return ResponseEntity.ok(certificates);
+    }
+
+    /**
+     * To get all certificates by several tags
+     * @param tags tags
+     * @return ResponseEntity with found certificates
+     */
+    @GetMapping("/search/{tags}")
+    public ResponseEntity<List<CertificateResponseModel>> getAllByTags(@PathVariable List<String> tags){
+        List<CertificateResponseModel> certificates = certificateService.getAllByTags(tags);
         return ResponseEntity.ok(certificates);
     }
 

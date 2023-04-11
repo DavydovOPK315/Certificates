@@ -17,7 +17,7 @@ public class OrderRepository {
         entityManager.persist(order);
     }
 
-    public Order findById(long id){
+    public Order findById(long id) {
         return entityManager.find(Order.class, id);
     }
 }

@@ -1,6 +1,5 @@
 package com.epam.esm.controller;
 
-
 import com.epam.esm.dto.UserRequestModel;
 import com.epam.esm.dto.UserResponseModel;
 import com.epam.esm.service.UserService;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,6 +36,19 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseModel> getById(@PathVariable long id) {
+        UserResponseModel userResponseModel = userService.getUserById(id);
+        userResponseModel.setOrders(new ArrayList<>());
+        return ResponseEntity.ok(userResponseModel);
+    }
+
+    /**
+     * To get user by id with orders
+     *
+     * @param id user id
+     * @return ResponseEntity with found user and with his orders
+     */
+    @GetMapping("/{id}/orders")
+    public ResponseEntity<UserResponseModel> getByIdWithOrders(@PathVariable long id) {
         UserResponseModel userResponseModel = userService.getUserById(id);
         return ResponseEntity.ok(userResponseModel);
     }

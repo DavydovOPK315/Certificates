@@ -46,6 +46,17 @@ public class TagController {
     }
 
     /**
+     * Get the most widely used tag of a user with the highest cost of all orders
+     *
+     * @return ResponseEntity with found tag
+     */
+    @GetMapping("/widely-used")
+    public ResponseEntity<TagResponseModel> getMostWidelyUsedTagOfUserWithHighestCostOfAllOrders() {
+        TagResponseModel tag = tagService.getMostWidelyUsedTagOfUserWithHighestCostOfAllOrders();
+        return ResponseEntity.ok(tag);
+    }
+
+    /**
      * To create tag
      *
      * @param tagRequestModel tag request model

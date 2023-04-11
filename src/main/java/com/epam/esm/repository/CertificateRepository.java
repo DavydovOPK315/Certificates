@@ -41,26 +41,23 @@ public class CertificateRepository {
     }
 
     public Certificate findByName(String name) {
-        Certificate certificate = (Certificate) entityManager.createQuery("select c from Certificate c where c.name = ?1")
+        return entityManager.createQuery("select c from Certificate c where c.name = ?1", Certificate.class)
                 .setParameter(1, name)
                 .getSingleResult();
-        return certificate;
     }
 
     public List<Certificate> findAllByNameLike(String name) {
         String value = "%" + name + "%";
-        List<Certificate> certificate = entityManager.createQuery("select c from Certificate c where c.name like ?1")
+        return entityManager.createQuery("select c from Certificate c where c.name like ?1", Certificate.class)
                 .setParameter(1, value)
                 .getResultList();
-        return certificate;
     }
 
     public List<Certificate> findAllByDescriptionLike(String description) {
         String value = "%" + description + "%";
-        List<Certificate> certificate = entityManager.createQuery("select c from Certificate c where c.description like ?1")
+        return entityManager.createQuery("select c from Certificate c where c.description like ?1", Certificate.class)
                 .setParameter(1, value)
                 .getResultList();
-        return certificate;
     }
 
     public List<Certificate> findAllByOrderByCreateDateDescNameDesc() {
@@ -88,9 +85,14 @@ public class CertificateRepository {
     }
 
     public List<Certificate> findAllByTagName(String tagName) {
-        List<Certificate> certificate = entityManager.createQuery("select c from Certificate c JOIN c.tags t where t.name = ?1")
+        return entityManager.createQuery("select c from Certificate c JOIN c.tags t where t.name = ?1", Certificate.class)
                 .setParameter(1, tagName)
                 .getResultList();
-        return certificate;
+    }
+
+    public List<Certificate> findAllByTags(List<String> tags) {
+        return entityManager.createQuery("select c from Certificate c join c.tags t where t.name in :tags", Certificate.class)
+                .setParameter("tags", tags)
+                .getResultList();
     }
 }

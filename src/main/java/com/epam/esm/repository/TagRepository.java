@@ -34,4 +34,18 @@ public class TagRepository {
     public Tag findById(long id) {
         return entityManager.find(Tag.class, id);
     }
+
+    public Tag findMostWidelyUsedTagOfUserWithHighestCostOfAllOrders() {
+        String jpql1 = "SELECT o2.user.id FROM Order o2 WHERE o2.price = " +
+                "(SELECT max(o3.price) FROM Order o3)";
+        String jpql2 = "SELECT t FROM Tag t JOIN t.certificates c " +
+                "JOIN Order o ON o.certificate.id = c.id AND o.user.id = ?1 group by t.id";
+        Long userId = entityManager.createQuery(jpql1, Long.class)
+                .setMaxResults(1)
+                .getSingleResult();
+        return entityManager.createQuery(jpql2, Tag.class)
+                .setParameter(1, userId)
+                .setMaxResults(1)
+                .getSingleResult();
+    }
 }

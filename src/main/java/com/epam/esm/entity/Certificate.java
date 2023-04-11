@@ -1,17 +1,13 @@
 package com.epam.esm.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "gift_certificates")
@@ -52,7 +48,7 @@ public class Certificate implements Serializable {
             name = "gift_certificates_has_tag",
             joinColumns = @JoinColumn(name = "gift_certificates_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<Tag> tags;
+    private List<Tag> tags;
 
     @Override
     public String toString() {

@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "tag")
@@ -25,7 +25,7 @@ public class Tag implements Serializable {
     private String name;
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
-    private Set<Certificate> certificates;
+    private List<Certificate> certificates;
 
     @Override
     public String toString() {

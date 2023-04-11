@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,10 +42,10 @@ public class CertificateService {
                 .filter(t1 -> tagService.getAll().stream()
                         .noneMatch(t2 -> t1.getName().equals(t2.getName())))
                 .forEach(tagService::create);
-        Set<Tag> boundTag = tagRepository.findAll().stream()
+        List<Tag> boundTag = tagRepository.findAll().stream()
                 .filter(t -> newTagRequestModels.stream()
                         .anyMatch(t2 -> t.getName().equals(t2.getName())))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         certificate.setTags(boundTag);
         certificate.setId(null);
         certificateRepository.save(certificate);
@@ -85,16 +84,26 @@ public class CertificateService {
             newTags.stream().filter(t1 -> actualTagResponseModels.stream()
                             .noneMatch(t2 -> t1.getName().equals(t2.getName())))
                     .forEach(tagService::create);
-            Set<Tag> boundTag = tagRepository.findAll().stream()
+            List<Tag> boundTag = tagRepository.findAll().stream()
                     .filter(t -> newTags.stream()
                             .anyMatch(t2 -> t.getName().equals(t2.getName())))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
             certificate.setTags(boundTag);
         }
         String date = LocalDateTime.now().toString();
         certificate.setId(id);
         certificate.setLastUpdateDate(date);
         certificateRepository.update(certificate);
+    }
+
+    public List<CertificateResponseModel> getAllByTags(List<String> tags) {
+        List<CertificateResponseModel> resultList = new ArrayList<>();
+
+        if (tags.isEmpty()) {
+            return resultList;
+        }
+        List<Certificate> certificateList = certificateRepository.findAllByTags(tags);
+        return getCertificateResponseModels(certificateList, resultList);
     }
 
     public CertificateResponseModel getCertificateById(long id) {
