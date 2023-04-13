@@ -31,6 +31,14 @@ public class TagRepository {
         return query.getResultList();
     }
 
+    public List<Tag> findAll(int pageNumber, int pageSize) {
+        String jpql = "select t from Tag t order by t.id";
+        TypedQuery<Tag> query = entityManager.createQuery(jpql, Tag.class)
+                .setFirstResult((pageNumber - 1) * pageSize)
+                .setMaxResults(pageSize);
+        return query.getResultList();
+    }
+
     public Tag findById(long id) {
         return entityManager.find(Tag.class, id);
     }

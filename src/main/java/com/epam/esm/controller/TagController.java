@@ -28,8 +28,9 @@ public class TagController {
      * @return ResponseEntity with found tags
      */
     @GetMapping
-    public ResponseEntity<List<TagResponseModel>> getAll() {
-        List<TagResponseModel> tags = tagService.getAll();
+    public ResponseEntity<List<TagResponseModel>> getAll(@RequestParam(defaultValue = "1") int pageNumber,
+                                                         @RequestParam(defaultValue = "20") int pageSize) {
+        List<TagResponseModel> tags = tagService.getAll(pageNumber, pageSize);
         return ResponseEntity.ok(tags);
     }
 

@@ -19,8 +19,8 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
-    public List<UserResponseModel> getAll() {
-        List<User> users = userRepository.findAll();
+    public List<UserResponseModel> getAll(int pageNumber, int pageSize) {
+        List<User> users = userRepository.findAll(pageNumber, pageSize);
         return mapList(users, UserResponseModel.class);
     }
 

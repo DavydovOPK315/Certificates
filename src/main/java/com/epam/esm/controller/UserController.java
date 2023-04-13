@@ -23,8 +23,9 @@ public class UserController {
      * @return ResponseEntity with found users
      */
     @GetMapping
-    public ResponseEntity<List<UserResponseModel>> getAll() {
-        List<UserResponseModel> users = userService.getAll();
+    public ResponseEntity<List<UserResponseModel>> getAll(@RequestParam(defaultValue = "1") int pageNumber,
+                                                          @RequestParam(defaultValue = "20") int pageSize) {
+        List<UserResponseModel> users = userService.getAll(pageNumber, pageSize);
         return ResponseEntity.ok(users);
     }
 
@@ -35,7 +36,7 @@ public class UserController {
      * @return ResponseEntity with found user
      */
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseModel> getById(@PathVariable long id) {
+    public ResponseEntity<UserResponseModel> getUserById(@PathVariable long id) {
         UserResponseModel userResponseModel = userService.getUserById(id);
         userResponseModel.setOrders(new ArrayList<>());
         return ResponseEntity.ok(userResponseModel);
@@ -48,7 +49,7 @@ public class UserController {
      * @return ResponseEntity with found user and with his orders
      */
     @GetMapping("/{id}/orders")
-    public ResponseEntity<UserResponseModel> getByIdWithOrders(@PathVariable long id) {
+    public ResponseEntity<UserResponseModel> getUserByIdWithOrders(@PathVariable long id) {
         UserResponseModel userResponseModel = userService.getUserById(id);
         return ResponseEntity.ok(userResponseModel);
     }

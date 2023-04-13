@@ -33,8 +33,10 @@ public class CertificateController {
      * @return all found certificates
      */
     @GetMapping
-    public ResponseEntity<List<CertificateResponseModel>> getAll() {
-        List<CertificateResponseModel> certificates = certificateService.getAll();
+    public ResponseEntity<List<CertificateResponseModel>> getAll(@RequestParam(defaultValue = "1") int pageNumber,
+                                                                 @RequestParam(defaultValue = "20") int pageSize) {
+        List<CertificateResponseModel> certificates = certificateService.getAll(pageNumber, pageSize);
+        certificates.forEach(this::generateHateoas);
         return ResponseEntity.ok(certificates);
     }
 
@@ -47,12 +49,7 @@ public class CertificateController {
     @GetMapping("/{id}")
     public ResponseEntity<CertificateResponseModel> getById(@PathVariable long id) {
         CertificateResponseModel certificate = certificateService.getCertificateById(id);
-        Link selfLink = linkTo(CertificateController.class).slash(id).withSelfRel();
-        Link allCertificatesLink = linkTo(methodOn(CertificateController.class)
-                .getAll()).withRel("allCertificates");
-        Link allCertificatesByTagLink = linkTo(methodOn(CertificateController.class)
-                .getAllByTagName("tag1")).withRel("allCertificatesByTag");
-        certificate.add(selfLink, allCertificatesLink, allCertificatesByTagLink);
+        generateHateoas(certificate);
         return ResponseEntity.ok(certificate);
     }
 
@@ -63,8 +60,11 @@ public class CertificateController {
      * @return ResponseEntity with found certificates
      */
     @GetMapping("/tag/{tagName}")
-    public ResponseEntity<List<CertificateResponseModel>> getAllByTagName(@PathVariable String tagName) {
-        List<CertificateResponseModel> certificates = certificateService.getAllByTagName(tagName);
+    public ResponseEntity<List<CertificateResponseModel>> getAllByTagName(@PathVariable String tagName,
+                                                                          @RequestParam(defaultValue = "1") int pageNumber,
+                                                                          @RequestParam(defaultValue = "20") int pageSize) {
+        List<CertificateResponseModel> certificates = certificateService.getAllByTagName(tagName, pageNumber, pageSize);
+        certificates.forEach(this::generateHateoas);
         return ResponseEntity.ok(certificates);
     }
 
@@ -75,27 +75,34 @@ public class CertificateController {
      * @param description description
      * @return ResponseEntity with found certificates
      */
-    @GetMapping("/search")
+    @GetMapping("/search/name-or-description")
     public ResponseEntity<List<CertificateResponseModel>> getAllByNameOrDescription(@RequestParam(required = false) String name,
-                                                                                     @RequestParam(required = false) String description) {
+                                                                                    @RequestParam(required = false) String description,
+                                                                                    @RequestParam(defaultValue = "1") int pageNumber,
+                                                                                    @RequestParam(defaultValue = "20") int pageSize) {
         List<CertificateResponseModel> certificates = new ArrayList<>();
 
         if (name != null) {
-            certificates = certificateService.getAllByName(name);
+            certificates = certificateService.getAllByName(name, pageNumber, pageSize);
         } else if (description != null) {
-            certificates = certificateService.getAllByDescription(description);
+            certificates = certificateService.getAllByDescription(description, pageNumber, pageSize);
         }
+        certificates.forEach(this::generateHateoas);
         return ResponseEntity.ok(certificates);
     }
 
     /**
      * To get all certificates by several tags
+     *
      * @param tags tags
      * @return ResponseEntity with found certificates
      */
-    @GetMapping("/search/{tags}")
-    public ResponseEntity<List<CertificateResponseModel>> getAllByTags(@PathVariable List<String> tags){
-        List<CertificateResponseModel> certificates = certificateService.getAllByTags(tags);
+    @GetMapping("/search/tags-names/{tags}")
+    public ResponseEntity<List<CertificateResponseModel>> getAllByTagsNames(@PathVariable List<String> tags,
+                                                                            @RequestParam(defaultValue = "1") int pageNumber,
+                                                                            @RequestParam(defaultValue = "20") int pageSize) {
+        List<CertificateResponseModel> certificates = certificateService.getAllByTagsNames(tags, pageNumber, pageSize);
+        certificates.forEach(this::generateHateoas);
         return ResponseEntity.ok(certificates);
     }
 
@@ -106,10 +113,13 @@ public class CertificateController {
      * @param nameOrder order name
      * @return ResponseEntity with found certificates
      */
-    @GetMapping("/sort")
+    @GetMapping("/sort/date-name")
     public ResponseEntity<List<CertificateResponseModel>> getAllAndSortByDateAndName(@RequestParam(defaultValue = "asc") String dateOrder,
-                                                                                     @RequestParam(defaultValue = "asc") String nameOrder) {
-        List<CertificateResponseModel> certificates = certificateService.getAllAndSortByDateAndName(dateOrder, nameOrder);
+                                                                                     @RequestParam(defaultValue = "asc") String nameOrder,
+                                                                                     @RequestParam(defaultValue = "1") int pageNumber,
+                                                                                     @RequestParam(defaultValue = "20") int pageSize) {
+        List<CertificateResponseModel> certificates = certificateService.getAllAndSortByDateAndName(dateOrder, nameOrder, pageNumber, pageSize);
+        certificates.forEach(this::generateHateoas);
         return ResponseEntity.ok(certificates);
     }
 
@@ -135,7 +145,8 @@ public class CertificateController {
      */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Object> update(@PathVariable long id, @RequestBody CertificateRequestModel certificateRequestModel) {
+    public ResponseEntity<Object> update(@PathVariable long id,
+                                         @RequestBody CertificateRequestModel certificateRequestModel) {
         certificateService.update(id, certificateRequestModel);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -151,5 +162,14 @@ public class CertificateController {
     public ResponseEntity<Object> delete(@PathVariable int id) {
         certificateService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    private void generateHateoas(CertificateResponseModel certificate) {
+        Link selfLink = linkTo(CertificateController.class).slash(certificate.getId()).withSelfRel();
+        Link allCertificatesLink = linkTo(methodOn(CertificateController.class)
+                .getAll(1, 20)).withRel("allCertificates");
+        Link allCertificatesByTagLink = linkTo(methodOn(CertificateController.class)
+                .getAllByTagName("tag1", 1, 20)).withRel("allCertificatesByTag");
+        certificate.add(selfLink, allCertificatesLink, allCertificatesByTagLink);
     }
 }

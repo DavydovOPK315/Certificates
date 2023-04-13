@@ -37,6 +37,11 @@ public class TagService {
         return mapList(tags, TagResponseModel.class);
     }
 
+    public List<TagResponseModel> getAll(int pageNumber, int pageSize) {
+        List<Tag> tags = tagRepository.findAll(pageNumber, pageSize);
+        return mapList(tags, TagResponseModel.class);
+    }
+
     public TagResponseModel getMostWidelyUsedTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = tagRepository.findMostWidelyUsedTagOfUserWithHighestCostOfAllOrders();
         return modelMapper.map(tag, TagResponseModel.class);

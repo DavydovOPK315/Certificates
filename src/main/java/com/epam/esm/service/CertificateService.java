@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CertificateService {
-    public static final String CERTIFICATE_NOT_EXIST_WITH_ID = "Certificate not exist with id: ";
+    public static final String CERTIFICATE_NOT_EXIST_WITH_ID = "Certificate doesn't exist with id: ";
     private final CertificateRepository certificateRepository;
     private final ModelMapper modelMapper;
     private final TagService tagService;
@@ -38,57 +38,22 @@ public class CertificateService {
             certificateRepository.save(certificate);
             return;
         }
-        newTagRequestModels.stream()
-                .filter(t1 -> tagService.getAll().stream()
-                        .noneMatch(t2 -> t1.getName().equals(t2.getName())))
-                .forEach(tagService::create);
-        List<Tag> boundTag = tagRepository.findAll().stream()
-                .filter(t -> newTagRequestModels.stream()
-                        .anyMatch(t2 -> t.getName().equals(t2.getName())))
-                .collect(Collectors.toList());
-        certificate.setTags(boundTag);
+        checkNewTags(certificate, newTagRequestModels);
         certificate.setId(null);
         certificateRepository.save(certificate);
     }
 
-    public void delete(long id) {
-        Certificate certificate = certificateRepository.findById(id);
-
-        if (certificate == null) {
-            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
-        }
-        certificateRepository.deleteById(id);
-    }
-
     public void update(long id, CertificateRequestModel certificateRequestModel) {
         Certificate certificate = certificateRepository.findById(id);
-
-        if (certificate == null) {
-            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
-        }
         Long price = certificateRequestModel.getPrice();
         Integer duration = certificateRequestModel.getDuration();
 
-        if (price == null && duration == null) {
-            throw new IllegalArgumentException("Wrong price or duration of certificate");
-        }
-        if (price != null && !price.equals(certificate.getPrice())) {
-            certificate.setPrice(certificateRequestModel.getPrice());
-        } else {
-            certificate.setDuration(certificateRequestModel.getDuration());
-        }
-        List<TagRequestModel> newTags = certificateRequestModel.getTagRequestModels();
+        checkCertificateOnNull(id, certificate);
+        checkPriceAndDurationToUpdate(certificateRequestModel, certificate, price, duration);
+        List<TagRequestModel> newTagRequestModels = certificateRequestModel.getTagRequestModels();
 
-        if (newTags != null && newTags.size() > 0) {
-            List<TagResponseModel> actualTagResponseModels = tagService.getAll();
-            newTags.stream().filter(t1 -> actualTagResponseModels.stream()
-                            .noneMatch(t2 -> t1.getName().equals(t2.getName())))
-                    .forEach(tagService::create);
-            List<Tag> boundTag = tagRepository.findAll().stream()
-                    .filter(t -> newTags.stream()
-                            .anyMatch(t2 -> t.getName().equals(t2.getName())))
-                    .collect(Collectors.toList());
-            certificate.setTags(boundTag);
+        if (newTagRequestModels != null && !newTagRequestModels.isEmpty()) {
+            checkNewTags(certificate, newTagRequestModels);
         }
         String date = LocalDateTime.now().toString();
         certificate.setId(id);
@@ -96,22 +61,30 @@ public class CertificateService {
         certificateRepository.update(certificate);
     }
 
-    public List<CertificateResponseModel> getAllByTags(List<String> tags) {
+    public void delete(long id) {
+        Certificate certificate = certificateRepository.findById(id);
+        checkCertificateOnNull(id, certificate);
+        certificateRepository.deleteById(id);
+    }
+
+    public List<CertificateResponseModel> getAllByTagsNames(List<String> tagsNames, int pageNumber, int pageSize) {
         List<CertificateResponseModel> resultList = new ArrayList<>();
 
-        if (tags.isEmpty()) {
+        if (tagsNames.isEmpty()) {
             return resultList;
         }
-        List<Certificate> certificateList = certificateRepository.findAllByTags(tags);
+        List<Tag> tagList = tagRepository.findAll().stream()
+                .filter(tag -> tagsNames.stream()
+                        .anyMatch(name -> tag.getName().equals(name)))
+                .collect(Collectors.toList());
+        List<Certificate> certificateList = certificateRepository.findAllByTags(tagList, pageNumber, pageSize);
         return getCertificateResponseModels(certificateList, resultList);
     }
 
     public CertificateResponseModel getCertificateById(long id) {
         Certificate certificate = certificateRepository.findById(id);
+        checkCertificateOnNull(id, certificate);
 
-        if (certificate == null) {
-            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
-        }
         CertificateResponseModel certificateResponseModel = modelMapper.map(certificate, CertificateResponseModel.class);
         List<TagResponseModel> tagResponseModels = certificate.getTags().stream()
                 .map(tag -> modelMapper.map(tag, TagResponseModel.class))
@@ -120,52 +93,80 @@ public class CertificateService {
         return certificateResponseModel;
     }
 
-    public List<CertificateResponseModel> getAll() {
-        List<Certificate> certificateList = certificateRepository.findAll();
+    public List<CertificateResponseModel> getAll(int pageNumber, int pageSize) {
+        List<Certificate> certificateList = certificateRepository.findAll(pageNumber, pageSize);
         List<CertificateResponseModel> resultList = new ArrayList<>();
         return getCertificateResponseModels(certificateList, resultList);
     }
 
-    public List<CertificateResponseModel> getAllByTagName(String tagName) {
-        List<Certificate> certificateList = certificateRepository.findAllByTagName(tagName);
+    public List<CertificateResponseModel> getAllByTagName(String tagName, int pageNumber, int pageSize) {
+        List<Certificate> certificateList = certificateRepository.findAllByTagName(tagName, pageNumber, pageSize);
         List<CertificateResponseModel> resultList = new ArrayList<>();
         return getCertificateResponseModels(certificateList, resultList);
     }
 
-    public List<CertificateResponseModel> getAllByName(String name) {
-        List<Certificate> certificateList = certificateRepository.findAllByNameLike(name);
+    public List<CertificateResponseModel> getAllByName(String name, int pageNumber, int pageSize) {
+        List<Certificate> certificateList = certificateRepository.findAllByNameLike(name, pageNumber, pageSize);
         List<CertificateResponseModel> resultList = new ArrayList<>();
         return getCertificateResponseModels(certificateList, resultList);
     }
 
-    public List<CertificateResponseModel> getAllByDescription(String description) {
-        List<Certificate> certificateList = certificateRepository.findAllByDescriptionLike(description);
+    public List<CertificateResponseModel> getAllByDescription(String description, int pageNumber, int pageSize) {
+        List<Certificate> certificateList = certificateRepository.findAllByDescriptionLike(description, pageNumber, pageSize);
         List<CertificateResponseModel> resultList = new ArrayList<>();
         return getCertificateResponseModels(certificateList, resultList);
     }
 
-    public List<CertificateResponseModel> getAllAndSortByDateAndName(String dateOrder, String nameOrder) {
+    public List<CertificateResponseModel> getAllAndSortByDateAndName(String dateOrder, String nameOrder, int pageNumber, int pageSize) {
         List<Certificate> certificateList;
         List<CertificateResponseModel> resultList = new ArrayList<>();
         String value = dateOrder + " " + nameOrder;
 
         switch (value.toLowerCase()) {
             case ("desc desc"):
-                certificateList = certificateRepository.findAllByOrderByCreateDateDescNameDesc();
+                certificateList = certificateRepository.findAllByOrderByCreateDateDescNameDesc(pageNumber, pageSize);
                 break;
             case ("asc asc"):
-                certificateList = certificateRepository.findAllByOrderByCreateDateAscNameAsc();
+                certificateList = certificateRepository.findAllByOrderByCreateDateAscNameAsc(pageNumber, pageSize);
                 break;
             case ("desc asc"):
-                certificateList = certificateRepository.findAllByOrderByCreateDateDescNameAsc();
+                certificateList = certificateRepository.findAllByOrderByCreateDateDescNameAsc(pageNumber, pageSize);
                 break;
             case ("asc desc"):
-                certificateList = certificateRepository.findAllByOrderByCreateDateAscNameDesc();
+                certificateList = certificateRepository.findAllByOrderByCreateDateAscNameDesc(pageNumber, pageSize);
                 break;
             default:
                 return resultList;
         }
         return getCertificateResponseModels(certificateList, resultList);
+    }
+
+    private void checkNewTags(Certificate certificate, List<TagRequestModel> newTagRequestModels) {
+        newTagRequestModels.stream().filter(t1 -> tagService.getAll().stream()
+                        .noneMatch(t2 -> t1.getName().equals(t2.getName())))
+                .forEach(tagService::create);
+        List<Tag> boundTag = tagRepository.findAll().stream()
+                .filter(t -> newTagRequestModels.stream()
+                        .anyMatch(t2 -> t.getName().equals(t2.getName())))
+                .collect(Collectors.toList());
+        certificate.setTags(boundTag);
+    }
+
+    private void checkPriceAndDurationToUpdate(CertificateRequestModel certificateRequestModel, Certificate certificate, Long price, Integer duration) {
+        if (price == null && duration == null) {
+            throw new ResourceNotFoundException("Wrong price or duration of certificate");
+        }
+        if (price != null && !price.equals(certificate.getPrice())) {
+            certificate.setPrice(certificateRequestModel.getPrice());
+        } else {
+            certificate.setDuration(certificateRequestModel.getDuration());
+        }
+    }
+
+    private void checkCertificateOnNull(long id, Certificate certificate) {
+        if (certificate == null) {
+            throw new ResourceNotFoundException(CERTIFICATE_NOT_EXIST_WITH_ID + id);
+        }
     }
 
     private List<CertificateResponseModel> getCertificateResponseModels(List<Certificate> certificateList, List<CertificateResponseModel> resultList) {

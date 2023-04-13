@@ -28,12 +28,12 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @param request request
      * @return return ResponseEntity with custom message, http headers and http status
      */
-    @ExceptionHandler({IllegalArgumentException.class, EmptyResultDataAccessException.class})
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CustomMessage> handleAnyException(Exception ex, WebRequest request) {
-        String k = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
+        String data = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
         CustomMessage customMessage = new CustomMessage();
-        customMessage.setErrorMessage("Requested resource not found (id = " + k + ")");
-        customMessage.setErrorCode(Integer.parseInt("404" + k));
+        customMessage.setErrorMessage("Unable find or create resource with data (" + data + ")");
+        customMessage.setErrorCode(Integer.parseInt("400"));
         return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -52,12 +52,12 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     /**
-     * To handle NullPointerException
+     * To handle EmptyResultDataAccessException
      *
      * @param ex Exception
      * @return return ResponseEntity with custom message, http headers and http status
      */
-    @ExceptionHandler(NullPointerException.class)
+    @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<CustomMessage> handleNullPointerException(Exception ex) {
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage(ex.getMessage());

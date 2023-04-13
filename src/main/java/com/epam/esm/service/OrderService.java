@@ -5,6 +5,7 @@ import com.epam.esm.dto.OrderResponseModel;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
+import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
@@ -29,7 +30,7 @@ public class OrderService {
         Certificate certificate = certificateRepository.findById(orderRequestModel.getCertificateId());
 
         if (user == null || certificate == null) {
-            throw new NullPointerException("Unable to create order due to wrong user or certificate data");
+            throw new ResourceNotFoundException("Unable to create order due to wrong user or certificate data");
         }
         order.setCreateDate(date);
         order.setPrice(certificate.getPrice());

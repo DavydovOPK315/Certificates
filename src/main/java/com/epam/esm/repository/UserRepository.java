@@ -19,9 +19,11 @@ public class UserRepository {
         entityManager.persist(user);
     }
 
-    public List<User> findAll() {
+    public List<User> findAll(int pageNumber, int pageSize) {
         String jpql = "select u from User u";
-        TypedQuery<User> query = entityManager.createQuery(jpql, User.class);
+        TypedQuery<User> query = entityManager.createQuery(jpql, User.class)
+                .setFirstResult((pageNumber - 1) * pageSize)
+                .setMaxResults(pageSize);
         return query.getResultList();
     }
 
