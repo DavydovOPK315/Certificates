@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.OrderRequestModel;
-import com.epam.esm.dto.OrderResponseModel;
+import com.epam.esm.dto.order.OrderRequestModel;
+import com.epam.esm.dto.order.OrderResponseModel;
 import com.epam.esm.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

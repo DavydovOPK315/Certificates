@@ -1,9 +1,9 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dto.CertificateRequestModel;
-import com.epam.esm.dto.CertificateResponseModel;
-import com.epam.esm.dto.TagRequestModel;
-import com.epam.esm.dto.TagResponseModel;
+import com.epam.esm.dto.certificate.CertificateRequestModel;
+import com.epam.esm.dto.certificate.CertificateResponseModel;
+import com.epam.esm.dto.tag.TagRequestModel;
+import com.epam.esm.dto.tag.TagResponseModel;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
@@ -77,6 +77,10 @@ public class CertificateService {
                 .filter(tag -> tagsNames.stream()
                         .anyMatch(name -> tag.getName().equals(name)))
                 .collect(Collectors.toList());
+
+        if (tagList.isEmpty()) {
+            return resultList;
+        }
         List<Certificate> certificateList = certificateRepository.findAllByTags(tagList, pageNumber, pageSize);
         return getCertificateResponseModels(certificateList, resultList);
     }

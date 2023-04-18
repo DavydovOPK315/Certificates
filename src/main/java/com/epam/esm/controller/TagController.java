@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.TagRequestModel;
-import com.epam.esm.dto.TagResponseModel;
+import com.epam.esm.dto.tag.TagRequestModel;
+import com.epam.esm.dto.tag.TagResponseModel;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

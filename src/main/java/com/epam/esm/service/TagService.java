@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dto.TagRequestModel;
-import com.epam.esm.dto.TagResponseModel;
+import com.epam.esm.dto.tag.TagRequestModel;
+import com.epam.esm.dto.tag.TagResponseModel;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagRepository;
 import lombok.RequiredArgsConstructor;

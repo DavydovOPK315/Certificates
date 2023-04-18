@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.CertificateRequestModel;
-import com.epam.esm.dto.CertificateResponseModel;
+import com.epam.esm.dto.certificate.CertificateRequestModel;
+import com.epam.esm.dto.certificate.CertificateResponseModel;
 import com.epam.esm.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Link;

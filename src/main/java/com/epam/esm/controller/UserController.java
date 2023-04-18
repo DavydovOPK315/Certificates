@@ -1,14 +1,14 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.UserRequestModel;
-import com.epam.esm.dto.UserResponseModel;
+import com.epam.esm.dto.user.UserRequestModel;
+import com.epam.esm.dto.user.UserResponseModel;
+import com.epam.esm.dto.user.UsersOrdersResponseModel;
 import com.epam.esm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,9 +23,9 @@ public class UserController {
      * @return ResponseEntity with found users
      */
     @GetMapping
-    public ResponseEntity<List<UserResponseModel>> getAll(@RequestParam(defaultValue = "1") int pageNumber,
-                                                          @RequestParam(defaultValue = "20") int pageSize) {
-        List<UserResponseModel> users = userService.getAll(pageNumber, pageSize);
+    public ResponseEntity<List<UsersOrdersResponseModel>> getAll(@RequestParam(defaultValue = "1") int pageNumber,
+                                                                 @RequestParam(defaultValue = "20") int pageSize) {
+        List<UsersOrdersResponseModel> users = userService.getAll(pageNumber, pageSize);
         return ResponseEntity.ok(users);
     }
 
@@ -38,7 +38,6 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseModel> getUserById(@PathVariable long id) {
         UserResponseModel userResponseModel = userService.getUserById(id);
-        userResponseModel.setOrders(new ArrayList<>());
         return ResponseEntity.ok(userResponseModel);
     }
 
@@ -49,8 +48,8 @@ public class UserController {
      * @return ResponseEntity with found user and with his orders
      */
     @GetMapping("/{id}/orders")
-    public ResponseEntity<UserResponseModel> getUserByIdWithOrders(@PathVariable long id) {
-        UserResponseModel userResponseModel = userService.getUserById(id);
+    public ResponseEntity<UsersOrdersResponseModel> getUserByIdWithOrders(@PathVariable long id) {
+        UsersOrdersResponseModel userResponseModel = userService.getUsersOrdersById(id);
         return ResponseEntity.ok(userResponseModel);
     }
 

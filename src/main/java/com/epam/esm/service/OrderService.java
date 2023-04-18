@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dto.OrderRequestModel;
-import com.epam.esm.dto.OrderResponseModel;
+import com.epam.esm.dto.order.OrderRequestModel;
+import com.epam.esm.dto.order.OrderResponseModel;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -106,10 +107,18 @@ public class CertificateRepository {
     }
 
     public List<Certificate> findAllByTags(List<Tag> tags, int pageNumber, int pageSize) {
-        return entityManager.createQuery("select c from Certificate c where :tag member of c.tags and :tag1 member of c.tags", Certificate.class)
-                .setParameter("tag", tags.get(0))
-                .setParameter("tag1", tags.get(1))
-                .setFirstResult((pageNumber - 1) * pageSize)
+        StringBuilder sb = new StringBuilder("select c from Certificate c where");
+
+        for (Tag tag : tags) {
+            sb.append(" :").append(tag.getName()).append(" member of c.tags and");
+        }
+
+        TypedQuery<Certificate> query = entityManager.createQuery(sb.substring(0, sb.lastIndexOf(" and")), Certificate.class);
+        for (Tag tag : tags) {
+            query.setParameter(tag.getName(), tag);
+        }
+
+        return query.setFirstResult((pageNumber - 1) * pageSize)
                 .setMaxResults(pageSize)
                 .getResultList();
     }

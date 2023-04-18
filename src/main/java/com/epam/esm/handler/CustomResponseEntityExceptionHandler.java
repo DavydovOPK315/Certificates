@@ -24,12 +24,11 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     /**
      * To handle IllegalArgumentException
      *
-     * @param ex      exception
      * @param request request
      * @return return ResponseEntity with custom message, http headers and http status
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<CustomMessage> handleAnyException(Exception ex, WebRequest request) {
+    public ResponseEntity<CustomMessage> handleAnyException(WebRequest request) {
         String data = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage("Unable find or create resource with data (" + data + ")");

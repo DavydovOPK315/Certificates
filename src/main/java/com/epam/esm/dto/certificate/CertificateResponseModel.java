@@ -1,5 +1,6 @@
-package com.epam.esm.dto;
+package com.epam.esm.dto.certificate;
 
+import com.epam.esm.dto.tag.TagResponseModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
