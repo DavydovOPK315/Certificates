@@ -1,4 +1,4 @@
-package com.epam.esm.entity;
+package com.epam.esm.dto.tag;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertificateHasTag {
-    private int giftCertificatesId;
-    private int tagId;
+public class TagResponseModel {
+    private Long id;
+    private String name;
 }

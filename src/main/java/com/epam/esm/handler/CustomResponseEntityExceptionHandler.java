@@ -2,6 +2,7 @@ package com.epam.esm.handler;
 
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.handler.entity.CustomMessage;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +24,16 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     /**
      * To handle IllegalArgumentException
      *
-     * @param ex      exception
      * @param request request
      * @return return ResponseEntity with custom message, http headers and http status
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<CustomMessage> handleAnyException(Exception ex, WebRequest request) {
-        String k = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
+    public ResponseEntity<CustomMessage> handleAnyException(WebRequest request) {
+        String data = request.toString().substring(request.toString().lastIndexOf('/') + 1, request.toString().lastIndexOf(';'));
         CustomMessage customMessage = new CustomMessage();
-        customMessage.setErrorMessage("Requested resource not found (id = " + k + ")");
-        customMessage.setErrorCode(Integer.parseInt("404" + k));
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.BAD_REQUEST);
+        customMessage.setErrorMessage("Unable find or create resource with data (" + data + ")");
+        customMessage.setErrorCode(Integer.parseInt("400"));
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -44,14 +42,26 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      *
      * @return return ResponseEntity with custom message, http headers and http status
      */
-    @ExceptionHandler({SQLIntegrityConstraintViolationException.class, NullPointerException.class})
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<CustomMessage> handleSQLIntegrityConstraintViolationException() {
         CustomMessage customMessage = new CustomMessage();
-        customMessage.setErrorMessage("Not Acceptable due to wrong action or data");
+        customMessage.setErrorMessage("Not Acceptable due to wrong action or data for db");
         customMessage.setErrorCode(406);
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    /**
+     * To handle EmptyResultDataAccessException
+     *
+     * @param ex Exception
+     * @return return ResponseEntity with custom message, http headers and http status
+     */
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<CustomMessage> handleNullPointerException(Exception ex) {
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setErrorMessage(ex.getMessage());
+        customMessage.setErrorCode(406);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     /**
@@ -67,8 +77,6 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         CustomMessage customMessage = new CustomMessage();
         customMessage.setErrorMessage(ex.getMessage());
         customMessage.setErrorCode(404);
-        return new ResponseEntity<>(
-                customMessage, new HttpHeaders(),
-                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(customMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 }

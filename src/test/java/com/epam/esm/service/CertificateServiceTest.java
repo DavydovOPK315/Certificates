@@ -1,12 +1,14 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.CertificateDAO;
-import com.epam.esm.dto.CertificateRequestModel;
-import com.epam.esm.dto.CertificateResponseModel;
-import com.epam.esm.dto.TagRequestModel;
-import com.epam.esm.dto.TagResponseModel;
+import com.epam.esm.dto.certificate.CertificateRequestModel;
+import com.epam.esm.dto.certificate.CertificateResponseModel;
+import com.epam.esm.dto.tag.TagRequestModel;
+import com.epam.esm.dto.tag.TagResponseModel;
 import com.epam.esm.entity.Certificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.repository.CertificateRepository;
+import com.epam.esm.repository.TagRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,13 +23,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CertificateServiceTest {
 
     @Mock
-    private CertificateDAO certificateDAO;
+    private CertificateRepository certificateRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -36,7 +39,7 @@ class CertificateServiceTest {
     private TagService tagService;
 
     @Mock
-    private CertificateHasTagService certificateHasTagService;
+    private TagRepository tagRepository;
 
     @Spy
     @InjectMocks
@@ -47,142 +50,193 @@ class CertificateServiceTest {
     private final List<Certificate> certificateList = Collections.singletonList(certificate);
 
     {
-        certificate.setId(1);
+        certificate.setId(1L);
         certificate.setName("c1");
-        certificateResponseModel.setId(1);
+        certificateResponseModel.setId(1L);
     }
 
     @Test
-    void create() {
+    void createWithNewTags() {
         CertificateRequestModel certificateRequestModel = new CertificateRequestModel();
-        certificateRequestModel.setId(1);
+        certificateRequestModel.setId(1L);
         certificateRequestModel.setName("c1");
-        certificateRequestModel.setTagRequestModels(Collections.singletonList(new TagRequestModel(1, "tag1")));
+        certificateRequestModel.setTagRequestModels(Collections.singletonList(new TagRequestModel(1L, "tag1")));
 
         List<TagResponseModel> tagResponseModelList = new ArrayList<>();
-        tagResponseModelList.add(new TagResponseModel(5, "tag5"));
-        tagResponseModelList.add(new TagResponseModel(1, "tag1"));
+        tagResponseModelList.add(new TagResponseModel(5L, "tag5"));
+        tagResponseModelList.add(new TagResponseModel(1L, "tag1"));
 
-        doNothing().when(certificateDAO).create(certificate);
-        when(certificateDAO.getByName(anyString())).thenReturn(certificate);
-        when(modelMapper.map(certificateRequestModel, Certificate.class)).thenReturn(certificate);
+        doNothing().when(certificateRepository).save(certificate);
+        when(modelMapper.map(certificateRequestModel, Certificate.class))
+                .thenReturn(certificate);
         when(tagService.getAll()).thenReturn(tagResponseModelList);
-        doNothing().when(certificateHasTagService).create(anyInt(), anyInt());
+        when(tagRepository.findAll())
+                .thenReturn(Collections.singletonList(new Tag(1L, "tag1", null)));
 
         assertDoesNotThrow(() -> service.create(certificateRequestModel));
 
         verify(service, times(1)).create(certificateRequestModel);
-        verify(certificateDAO, times(1)).create(certificate);
-        verify(certificateDAO, times(1)).getByName(anyString());
+        verify(certificateRepository, times(1)).save(certificate);
         verify(modelMapper, times(1)).map(certificateRequestModel, Certificate.class);
-        verify(tagService, times(2)).getAll();
-        verify(certificateHasTagService, times(1)).create(anyInt(), anyInt());
+        verify(tagService, times(1)).getAll();
+    }
+
+    @Test
+    void createWithoutNewTags() {
+        CertificateRequestModel certificateRequestModel = new CertificateRequestModel();
+
+        doNothing().when(certificateRepository).save(certificate);
+        when(modelMapper.map(certificateRequestModel, Certificate.class))
+                .thenReturn(certificate);
+
+        certificateRequestModel.setTagRequestModels(null);
+        assertDoesNotThrow(() -> service.create(certificateRequestModel));
+        verify(certificateRepository, times(1)).save(certificate);
+        verify(modelMapper, times(1)).map(certificateRequestModel, Certificate.class);
     }
 
     @Test
     void deleteSuccess() {
-        when(certificateDAO.getById(anyInt())).thenReturn(certificate);
-        doNothing().when(certificateHasTagService).delete(anyInt());
-        doNothing().when(certificateDAO).delete(anyInt());
+        when(certificateRepository.findById(anyLong()))
+                .thenReturn(certificate);
+        doNothing().when(certificateRepository).deleteById(anyLong());
 
-        assertDoesNotThrow(() -> service.delete(anyInt()));
+        assertDoesNotThrow(() -> service.delete(anyLong()));
 
-        verify(service, times(1)).delete(anyInt());
-        verify(certificateDAO, times(1)).getById(anyInt());
-        verify(certificateHasTagService, times(1)).delete(anyInt());
-        verify(certificateDAO, times(1)).delete(anyInt());
+        verify(service, times(1)).delete(anyLong());
+        verify(certificateRepository, times(1)).findById(anyLong());
+        verify(certificateRepository, times(1)).deleteById(anyLong());
     }
 
     @Test
     void deleteWithException() {
-        when(certificateDAO.getById(anyInt())).thenReturn(null);
+        when(certificateRepository.findById(anyLong()))
+                .thenReturn(null);
 
-        assertThrows(ResourceNotFoundException.class, () -> service.delete(anyInt()));
+        assertThrows(ResourceNotFoundException.class, () -> service.delete(anyLong()));
 
-        verify(service, times(1)).delete(anyInt());
-        verify(certificateDAO, times(1)).getById(anyInt());
+        verify(service, times(1)).delete(anyLong());
+        verify(certificateRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    void getCertificateByIdException() {
-        when(certificateDAO.getById(anyInt())).thenReturn(null);
+    void getAllByTagsNames() {
+        when(tagRepository.findAll())
+                .thenReturn(Collections.singletonList(new Tag(1L, "tag1", null)));
+        when(certificateRepository.findAllByTags(anyList(), anyInt(), anyInt()))
+                .thenReturn(certificateList);
+        getCertificateResponseModelsMock();
+        List<String> tags = new ArrayList<>();
+        tags.add("tag1");
+        tags.add("tags2");
 
-        assertThrows(ResourceNotFoundException.class, () -> service.getCertificateById(anyInt()));
+        assertEquals(1, service.getAllByTagsNames(tags, 1, 20).size());
 
-        verify(service, times(1)).getCertificateById(anyInt());
-        verify(certificateDAO, times(1)).getById(anyInt());
+        verify(service, times(1)).getAllByTagsNames(anyList(), anyInt(), anyInt());
+        verify(tagRepository, times(1)).findAll();
+        verify(certificateRepository, times(1)).findAllByTags(anyList(), anyInt(), anyInt());
+
+        assertEquals(0, service.getAllByTagsNames(new ArrayList<>(), 1, 20).size());
+    }
+
+
+    @Test
+    void getCertificateById() {
+        when(certificateRepository.findById(anyLong()))
+                .thenReturn(certificate);
+        when(modelMapper.map(certificate, CertificateResponseModel.class))
+                .thenReturn(certificateResponseModel);
+        certificate.setTags(Collections.singletonList(new Tag(1L, "Tag1", new ArrayList<>())));
+
+        assertNotNull(service.getCertificateById(1L));
+
+        certificate.setTags(new ArrayList<>());
+        verify(service, times(1)).getCertificateById(anyLong());
+        verify(certificateRepository, times(1)).findById(anyLong());
     }
 
     @Test
     void getAll() {
-        when(certificateDAO.getAll()).thenReturn(certificateList);
+        when(certificateRepository.findAll(anyInt(), anyInt()))
+                .thenReturn(certificateList);
         getCertificateResponseModelsMock();
 
-        assertEquals(1, service.getAll().size());
+        assertEquals(1, service.getAll(anyInt(), anyInt()).size());
 
-        verify(service, times(1)).getAll();
-        verify(certificateDAO, times(1)).getAll();
-
+        verify(service, times(1)).getAll(anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAll(anyInt(), anyInt());
     }
 
     @Test
     void getAllByTagName() {
-        when(certificateDAO.getAllByTagName(anyString())).thenReturn(certificateList);
+        when(certificateRepository.findAllByTagName(anyString(), anyInt(), anyInt()))
+                .thenReturn(certificateList);
         getCertificateResponseModelsMock();
 
-        assertEquals(1, service.getAllByTagName(anyString()).size());
+        assertEquals(1, service.getAllByTagName(anyString(), anyInt(), anyInt()).size());
 
-        verify(service, times(1)).getAllByTagName(anyString());
-        verify(certificateDAO, times(1)).getAllByTagName(anyString());
+        verify(service, times(1)).getAllByTagName(anyString(), anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByTagName(anyString(), anyInt(), anyInt());
     }
 
     @Test
     void getAllByName() {
-        when(certificateDAO.getAllByName(anyString())).thenReturn(certificateList);
+        when(certificateRepository.findAllByNameLike(anyString(), anyInt(), anyInt()))
+                .thenReturn(certificateList);
         getCertificateResponseModelsMock();
 
-        assertEquals(1, service.getAllByName(anyString()).size());
+        assertEquals(1, service.getAllByName(anyString(), anyInt(), anyInt()).size());
 
-        verify(service, times(1)).getAllByName(anyString());
-        verify(certificateDAO, times(1)).getAllByName(anyString());
+        verify(service, times(1)).getAllByName(anyString(), anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByNameLike(anyString(), anyInt(), anyInt());
     }
 
     @Test
     void getAllByDescription() {
-        when(certificateDAO.getAllByDescription(anyString())).thenReturn(certificateList);
+        when(certificateRepository.findAllByDescriptionLike(anyString(), anyInt(), anyInt()))
+                .thenReturn(certificateList);
         getCertificateResponseModelsMock();
 
-        assertEquals(1, service.getAllByDescription(anyString()).size());
+        assertEquals(1, service.getAllByDescription(anyString(), anyInt(), anyInt()).size());
 
-        verify(service, times(1)).getAllByDescription(anyString());
-        verify(certificateDAO, times(1)).getAllByDescription(anyString());
+        verify(service, times(1)).getAllByDescription(anyString(), anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByDescriptionLike(anyString(), anyInt(), anyInt());
     }
 
     @Test
     void getAllAndSortByDateAndName() {
-        when(certificateDAO.getAllAndSortByDateDescAndNameDesc()).thenReturn(certificateList);
-        when(certificateDAO.getAllAndSortByDateAscAndNameAsc()).thenReturn(certificateList);
-        when(certificateDAO.getAllAndSortByDateDeskAndNameAsc()).thenReturn(certificateList);
-        when(certificateDAO.getAllAndSortByDateAscAndNameDesc()).thenReturn(certificateList);
+        when(certificateRepository.findAllByOrderByCreateDateDescNameDesc(anyInt(), anyInt()))
+                .thenReturn(certificateList);
+        when(certificateRepository.findAllByOrderByCreateDateAscNameAsc(anyInt(), anyInt()))
+                .thenReturn(certificateList);
+        when(certificateRepository.findAllByOrderByCreateDateDescNameAsc(anyInt(), anyInt()))
+                .thenReturn(certificateList);
+        when(certificateRepository.findAllByOrderByCreateDateAscNameDesc(anyInt(), anyInt()))
+                .thenReturn(certificateList);
         getCertificateResponseModelsMock();
 
-        assertEquals(1, service.getAllAndSortByDateAndName("desc", "desc").size());
-        assertEquals(1, service.getAllAndSortByDateAndName("asc", "asc").size());
-        assertEquals(1, service.getAllAndSortByDateAndName("desc", "asc").size());
-        assertEquals(1, service.getAllAndSortByDateAndName("asc", "desc").size());
-        assertEquals(0, service.getAllAndSortByDateAndName("", "").size());
+        assertEquals(1, service.getAllAndSortByDateAndName("desc", "desc", 1, 20).size());
+        assertEquals(1, service.getAllAndSortByDateAndName("asc", "asc", 1, 20).size());
+        assertEquals(1, service.getAllAndSortByDateAndName("desc", "asc", 1, 20).size());
+        assertEquals(1, service.getAllAndSortByDateAndName("asc", "desc", 1, 20).size());
+        assertEquals(0, service.getAllAndSortByDateAndName("", "", 1, 20).size());
 
-
-        verify(service, times(5)).getAllAndSortByDateAndName(anyString(), anyString());
-        verify(certificateDAO, times(1)).getAllAndSortByDateDescAndNameDesc();
-        verify(certificateDAO, times(1)).getAllAndSortByDateAscAndNameAsc();
-        verify(certificateDAO, times(1)).getAllAndSortByDateDeskAndNameAsc();
-        verify(certificateDAO, times(1)).getAllAndSortByDateAscAndNameDesc();
+        verify(service, times(5)).getAllAndSortByDateAndName(anyString(), anyString(), anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByOrderByCreateDateDescNameDesc(anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByOrderByCreateDateAscNameAsc(anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByOrderByCreateDateDescNameAsc(anyInt(), anyInt());
+        verify(certificateRepository, times(1)).findAllByOrderByCreateDateAscNameDesc(anyInt(), anyInt());
     }
 
     private void getCertificateResponseModelsMock() {
-        when(certificateDAO.getById(anyInt())).thenReturn(certificate);
-        when(tagService.getTagsByCertificateId(anyInt())).thenReturn(Collections.emptyList());
-        when(modelMapper.map(certificate, CertificateResponseModel.class)).thenReturn(certificateResponseModel);
+        when(certificateRepository.findById(anyLong()))
+                .thenReturn(certificate);
+        when(modelMapper.map(certificate, CertificateResponseModel.class))
+                .thenReturn(certificateResponseModel);
+        when(certificateRepository.findById(anyLong()))
+                .thenReturn(certificate);
+        when(modelMapper.map(certificate, CertificateResponseModel.class))
+                .thenReturn(certificateResponseModel);
+        certificate.setTags(Collections.singletonList(new Tag(1L, "tag1", new ArrayList<>())));
     }
 }
