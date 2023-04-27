@@ -26,7 +26,7 @@ public class OrderService {
     public void create(OrderRequestModel orderRequestModel) {
         Order order = new Order();
         String date = LocalDateTime.now().toString();
-        User user = userRepository.findById(orderRequestModel.getUserId());
+        User user = userRepository.findById(orderRequestModel.getUserId()).orElse(null);
         Certificate certificate = certificateRepository.findById(orderRequestModel.getCertificateId());
 
         if (user == null || certificate == null) {

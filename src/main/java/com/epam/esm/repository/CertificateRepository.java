@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -128,3 +131,58 @@ public class CertificateRepository {
         }
     }
 }
+
+
+//    public List<Certificate> findAllByTags(List<Tag> tagss, int pageNumber, int pageSize) {
+////        StringBuilder sb = new StringBuilder("select c from Certificate c where");
+////        buildQueryString(tags, sb);
+//
+////        CriteriaQuery<Person> q = cb.createQuery(Person.class);
+////        Root<Person> p = q.from(Person.class);
+////        q.select(p)
+////                .where(cb.isMember("joe",
+////                        p.<Set<String>>get("nicknames")));
+//
+//
+//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+//        CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
+//        Root<Certificate> root = cq.from(Certificate.class);
+//
+////        List<List<Tag>> listTags = new ArrayList<>();
+////        listTags.add(tagss);
+//        cq.select(root)
+//                .where(cb.isTrue(root.<List<Tag>>get("tags").in(tagss)));
+//
+////        .where(cb.
+////                isMember(listTags,
+////                        root.<List<Tag>>get("tags")));
+//
+//
+////programmatically adding criterias and/or some filter clauses to your query
+////        cq.select(root);
+//        cq.select(root);
+////        cq.where(root.get("d").in(tagss));
+////        System.out.println(root.get("tags"));
+////        System.out.println(root.get("price"));
+//        cq.where(root.get("tags").in(tagss));
+//        System.out.println(cq);
+//
+//        System.out.println(root.getModel().getAttributes());
+//        System.out.println(root.getModel().getDeclaredAttributes());
+////        cq.where(root.getModel().getAttributes());
+//
+//        cq.orderBy(cb.desc(root.get("id")));
+////        cq.orderBy(cb.desc(root.get("tags").in(tags)));
+//
+////passing cq to entityManager or session object
+//        TypedQuery<Certificate> query = entityManager.createQuery(cq);
+//        return query.setFirstResult((pageNumber - 1) * pageSize)
+//                .setMaxResults(pageSize)
+//                .getResultList();
+//
+////        TypedQuery<Certificate> query = entityManager.createQuery(
+////                "select c from Certificate c JOIN c.tags t where all  ?1", Certificate.class);
+////        query.setParameter(1, tags);
+////        return query.setFirstResult((pageNumber - 1) * pageSize)
+////                .setMaxResults(pageSize)
+////                .getResultList();
