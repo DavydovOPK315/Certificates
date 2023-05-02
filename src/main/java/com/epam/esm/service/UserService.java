@@ -12,7 +12,7 @@ import com.epam.esm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UsersOrdersResponseModel> getAll(int pageNumber, int pageSize) {
         List<User> users = userRepository.findAll(PageRequest.of((pageNumber - 1) * pageSize, pageSize)).toList();

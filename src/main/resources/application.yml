@@ -4,5 +4,10 @@ spring:
       client:
         registration:
           google:
-            client-id: 511885753103-3vsmqtirg4u21g3nbl3p307dpc8o0734.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 511885753103-90lanipuofirt3b44ndv0bgevujj92fc.apps.googleusercontent.com
+            client-secret: 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
+            scope: openid,profile,email
+
+          github:
+            clientId: a24800de6a7bd42c4066
+            clientSecret: d117a24623e0f0e9d43f5d8db0cb222f80bd9089

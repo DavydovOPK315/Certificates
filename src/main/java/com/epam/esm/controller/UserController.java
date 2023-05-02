@@ -7,18 +7,13 @@ import com.epam.esm.dto.user.UsersOrdersResponseModel;
 import com.epam.esm.service.AuthService;
 import com.epam.esm.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -77,37 +72,27 @@ public class UserController {
     }
 
     /**
-     * To authorize user
+     * To authorize user by login and password
      *
      * @param userLoginRequestModel user login request model
      * @return status of operation
      */
     @PostMapping("/login")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> login(@RequestBody UserLoginRequestModel userLoginRequestModel) {
         return authService.login(userLoginRequestModel);
     }
 
-    @GetMapping("/private")
-    public String privatePage(Authentication authentication) {
-        System.out.println("Auth\n\t" + authentication.getCredentials());
-        return "Welcome to the VIP room ~[ " +
-                getName(authentication)
-                + " ]~'\u263A'" + '\u264A';
-    }
-
-    @GetMapping("/private2")
-    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        principal.getAttributes().forEach((s, o) -> System.out.println(s + " " + o));
-        return Collections.singletonMap("name", principal.getAttribute("name"));
-    }
-
-
-    private static String getName(Authentication authentication) {
-        return Optional.of(authentication.getPrincipal())
-                .filter(OidcUser.class::isInstance)
-                .map(OidcUser.class::cast)
-                .map(OidcUser::getEmail)
-                .orElseGet(authentication::getName);
+    /**
+     * To authorize user by Google token_id
+     *
+     * @param request HttpServletRequest
+     * @return status of operation
+     */
+    @PostMapping("/google/login")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> oauthLogin(HttpServletRequest request) {
+        final String googleAuthToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authService.googleOauth(googleAuthToken);
     }
 }

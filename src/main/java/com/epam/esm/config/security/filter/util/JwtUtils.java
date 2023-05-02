@@ -15,8 +15,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-
-    public static final String TOKEN_PREFIX = "Bearer";
+    public static final String TOKEN_PREFIX = "Bearer ";
 
     @Value("${jwt.secret}")
     private String secret;

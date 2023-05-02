@@ -2,9 +2,8 @@ package com.epam.esm.config.security.filter;
 
 import com.epam.esm.config.security.filter.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,36 +25,47 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
+    private static final Logger LOG = Logger.getLogger(JwtTokenFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String username;
 
-        System.out.println("JwtTokenFilter.doFilterInternal");;
+        if (checkEmptyToken(request, response, filterChain, authHeader)) return;
+        if (checkGoogleLogin(request, response, filterChain, authHeader)) return;
 
-        System.out.println(header);
+        try {
+            final String token = authHeader.split(" ")[1].trim();
 
-
-        if (isEmpty(header) || !header.startsWith(JwtUtils.TOKEN_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String token = header.split(" ")[1].trim();
-        if (!jwtUtils.validateToken(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String username = jwtUtils.getUsernameFromJwtToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-        if (authentication != null) {
+            if (!jwtUtils.validateToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            username = jwtUtils.getUsernameFromJwtToken(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            response.addHeader(HttpHeaders.AUTHORIZATION, JwtUtils.TOKEN_PREFIX + token);
+        } catch (Exception e) {
+            LOG.warn("Invalid token");
         }
-
-        response.addHeader("Authorization", "Bearer " + token);
         filterChain.doFilter(request, response);
+    }
+
+    private boolean checkGoogleLogin(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, String authHeader) throws IOException, ServletException {
+        if (!isEmpty(authHeader) && request.getServletPath().equals("/users/google/login")) {
+            filterChain.doFilter(request, response);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkEmptyToken(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, String authHeader) throws IOException, ServletException {
+        if (isEmpty(authHeader) || !authHeader.startsWith(JwtUtils.TOKEN_PREFIX)) {
+            filterChain.doFilter(request, response);
+            return true;
+        }
+        return false;
     }
 }
