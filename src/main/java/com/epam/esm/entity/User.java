@@ -1,5 +1,7 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +19,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class User implements Serializable {
 
     @Id
@@ -35,6 +38,11 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
     private List<Order> orders;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonBackReference
+    private Role role;
 
     @Override
     public boolean equals(Object o) {

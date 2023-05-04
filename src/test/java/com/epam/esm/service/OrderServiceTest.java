@@ -17,6 +17,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -48,7 +50,7 @@ class OrderServiceTest {
         User user = new User();
 
         when(userRepository.findById(anyLong()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
 
         when(certificateRepository.findById(anyLong()))
                 .thenReturn(certificate);

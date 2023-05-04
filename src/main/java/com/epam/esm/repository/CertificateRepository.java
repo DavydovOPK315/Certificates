@@ -108,18 +108,23 @@ public class CertificateRepository {
 
     public List<Certificate> findAllByTags(List<Tag> tags, int pageNumber, int pageSize) {
         StringBuilder sb = new StringBuilder("select c from Certificate c where");
-
-        for (Tag tag : tags) {
-            sb.append(" :").append(tag.getName()).append(" member of c.tags and");
-        }
-
+        buildQueryString(tags, sb);
         TypedQuery<Certificate> query = entityManager.createQuery(sb.substring(0, sb.lastIndexOf(" and")), Certificate.class);
-        for (Tag tag : tags) {
-            query.setParameter(tag.getName(), tag);
-        }
-
+        setParametersToQuery(tags, query);
         return query.setFirstResult((pageNumber - 1) * pageSize)
                 .setMaxResults(pageSize)
                 .getResultList();
+    }
+
+    private void buildQueryString(List<Tag> tags, StringBuilder sb) {
+        for (Tag tag : tags) {
+            sb.append(" :").append(tag.getName()).append(" member of c.tags and");
+        }
+    }
+
+    private void setParametersToQuery(List<Tag> tags, TypedQuery<Certificate> query) {
+        for (Tag tag : tags) {
+            query.setParameter(tag.getName(), tag);
+        }
     }
 }

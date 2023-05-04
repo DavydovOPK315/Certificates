@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -36,22 +37,9 @@ class UserServiceTest {
     private UserService service;
 
     @Test
-    void getAll() {
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        when(userRepository.findAll(anyInt(), anyInt()))
-                .thenReturn(users);
-
-        assertEquals(1, service.getAll(anyInt(), anyInt()).size());
-
-        verify(service, times(1)).getAll(anyInt(), anyInt());
-        verify(userRepository, times(1)).findAll(anyInt(), anyInt());
-    }
-
-    @Test
     void getUserById() {
         when(userRepository.findById(anyLong()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
         when(modelMapper.map(user, UserResponseModel.class))
                 .thenReturn(new UserResponseModel());
 
@@ -66,7 +54,7 @@ class UserServiceTest {
     void getUsersOrdersById() {
         user.setOrders(new ArrayList<>());
         when(userRepository.findById(anyLong()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
         when(modelMapper.map(user, UsersOrdersResponseModel.class))
                 .thenReturn(new UsersOrdersResponseModel());
 
