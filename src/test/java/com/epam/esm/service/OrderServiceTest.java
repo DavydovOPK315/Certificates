@@ -64,7 +64,7 @@ class OrderServiceTest {
         OrderRequestModel orderRequestModel = new OrderRequestModel(1L, 2L);
 
         when(userRepository.findById(anyLong()))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
         when(certificateRepository.findById(anyLong()))
                 .thenReturn(null);
 
