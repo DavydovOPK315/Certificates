@@ -10,13 +10,13 @@ pipeline {
     stages {
         stage('Compile') {
             steps {
-                sh './gradlew clean compile'
+                sh 'gradle clean compile'
                 echo "compile..."
             }
         }
         stage('Test') {
              steps {
-                sh './gradlew test'
+                sh 'gradle test'
                 echo "test..."
              }
         }
@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Build') {
              steps {
-                sh './gradlew clean jar'
+                sh 'gradle clean jar'
                 echo "build..."
              }
         }
