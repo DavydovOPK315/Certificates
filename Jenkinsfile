@@ -4,11 +4,15 @@ pipeline {
             label 'docker-agent-alpine2'
             }
       }
+    triggers {
+        pollSCM '* * * * *'
+    }
     stages {
         stage('Compile') {
             steps {
-                sh './gradlew clean build'
-                echo "compile..."
+                echo "compile start..."
+                sh './gradlew build --scan'
+                echo "compile end..."
             }
         }
     }
