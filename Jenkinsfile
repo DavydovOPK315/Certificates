@@ -12,7 +12,7 @@ pipeline {
             steps {
                 echo "compile start..."
                 sh './gradlew build --scan'
-                echo "compile end..."
+                echo "compile end2..."
             }
         }
     }
