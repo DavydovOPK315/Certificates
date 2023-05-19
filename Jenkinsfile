@@ -11,6 +11,7 @@ pipeline {
         stage('Compile') {
             steps {
                 echo "compile start..."
+                sh "chmod +x gradlew"
                 sh './gradlew build --scan'
                 echo "compile end2..."
             }
