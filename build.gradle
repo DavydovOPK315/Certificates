@@ -53,8 +53,11 @@ dependencies {
 group = 'com.epam.esm'
 version = '0.0.1-SNAPSHOT'
 description = 'Certificates'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-java.targetCompatibility = JavaVersion.VERSION_1_8
+//java.sourceCompatibility = JavaVersion.VERSION_1_8
+//java.targetCompatibility = JavaVersion.VERSION_1_8
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 //publishing {
 //    publications {
@@ -79,6 +82,12 @@ tasks.named('test') {
 
 //jacoco {
 //    toolVersion = "0.8.8"
+//}
+
+// custom jar
+//jar {
+//    archiveBaseName = 'gs-gradle'
+//    archiveVersion =  '0.1.0'
 //}
 
 jacocoTestReport {
