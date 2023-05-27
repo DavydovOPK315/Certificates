@@ -5,13 +5,20 @@ pipeline {
             }
       }
     triggers {
-        pollSCM '* * * * *'
+        pollSCM '/5* * * * *'
     }
     stages {
+        stage('Clean') {
+            steps {
+                echo "Clean start..."
+                sh "chmod +x gradlew"
+                sh './gradlew clean'
+                echo "clean end..."
+            }
+        }
         stage('Compile') {
             steps {
                 echo "compile start..."
-                sh "chmod +x gradlew"
                 sh './gradlew build --scan'
                 echo "compile end..."
             }
@@ -26,6 +33,7 @@ pipeline {
         stage('Jacoco sends') {
              steps {
                 echo "Jacoco sends..."
+                sh './gradlew sonar'
              }
         }
 //         stage('Build') {

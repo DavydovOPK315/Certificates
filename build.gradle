@@ -80,6 +80,10 @@ tasks.named('test') {
     finalizedBy jacocoTestReport
 }
 
+tasks.named('sonarqube').configure {
+    dependsOn test
+}
+
 //jacoco {
 //    toolVersion = "0.8.8"
 //}
@@ -92,7 +96,7 @@ tasks.named('test') {
 
 jacocoTestReport {
     reports {
-//        xml.enabled = true
+//        xml.enabled true
         xml.required = true
     }
     afterEvaluate {
@@ -106,8 +110,8 @@ test.finalizedBy jacocoTestReport
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "DavydovOPK315_Certificates"
-        property "sonar.organization", "davydovopk315"
-        property "sonar.host.url", "https://sonarcloud.io"
+        property 'sonar.projectKey', 'DavydovOPK315_Certificates'
+        property 'sonar.organization', 'davydovopk315'
+        property 'sonar.host.url', 'https://sonarcloud.io'
     }
 }
