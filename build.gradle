@@ -9,7 +9,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'jacoco'
-    id 'org.sonarqube' version "3.5.0.2730"
+    id 'org.sonarqube' version "4.0.0.2929"
 }
 
 //repositories {
@@ -37,7 +37,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.7.4'
     implementation 'javax.interceptor:javax.interceptor-api:1.2.2'
     implementation 'log4j:log4j:1.2.17'
-    //    api 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java:8.0.30'
@@ -56,8 +55,10 @@ description = 'Certificates'
 //java.sourceCompatibility = JavaVersion.VERSION_1_8
 //java.targetCompatibility = JavaVersion.VERSION_1_8
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+//sourceCompatibility = 1.8
+//targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 //publishing {
 //    publications {
