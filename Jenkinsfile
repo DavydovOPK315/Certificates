@@ -15,13 +15,6 @@ pipeline {
                 }
             }
 
-        stage('Git Checkout') {
-            steps {
-                git url: 'https://github.com/DavydovOPK315/Certificates.git'
-		            echo "Code Checked-out Successfully!!";
-            }
-        }
-
         stage('Package') {
             steps {
                 sh 'mvn package'
