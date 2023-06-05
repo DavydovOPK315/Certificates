@@ -10,15 +10,15 @@ pipeline {
 
         stage('Package') {
             steps {
-                bat 'mvn package'
-		            echo "Maven Package Goal Executed Successfully!";
+                sh 'mvn package'
+		        echo "Maven Package Goal Executed Successfully!";
             }
         }
 
         stage('JUNit Reports') {
             steps {
-                    junit 'target/surefire-reports/*.xml'
-		                echo "Publishing JUnit reports"
+                junit 'target/surefire-reports/*.xml'
+		        echo "Publishing JUnit reports"
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
             steps {
 		// Change this as per your Jenkins Configuration
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn package sonar:sonar'
+                    sh 'mvn package sonar:sonar'
                 }
             }
         }

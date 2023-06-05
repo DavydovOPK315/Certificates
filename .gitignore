@@ -1,4 +1,4 @@
-#.mvn/
+!.mvn/
 javadoc/
 /certificates.log
 
