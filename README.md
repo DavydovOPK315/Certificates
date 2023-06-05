@@ -5,3 +5,7 @@ http://localhost:9090/api-docs
 
 Swagger:
 http://localhost:9090/swagger-ui/index.html#/
+
+Jenkins:
+login: davydov
+password: admin
