@@ -1,51 +1,52 @@
 pipeline {
-    agent {
-        node {
-            label 'docker-agent-alpine2'
-            }
-      }
-    triggers {
-        pollSCM '*/5 * * * *'
-    }
+    agent any
     stages {
-        stage('Clean') {
+        stage('Git Checkout') {
             steps {
-                echo "Clean start..."
-                sh "chmod +x gradlew"
-                sh './gradlew clean'
-                echo "clean end..."
+                git url: 'https://github.com/DavydovOPK315/Certificates.git'
+		            echo "Code Checked-out Successfully!!";
             }
         }
-        stage('Compile') {
+
+        stage('Package') {
             steps {
-                echo "compile start..."
-                sh './gradlew build --scan'
-                echo "compile end..."
+                bat 'mvn package'
+		            echo "Maven Package Goal Executed Successfully!";
             }
         }
-        stage('Test') {
-             steps {
-                echo "test start..."
-                sh './gradlew test'
-                echo "test end..."
-             }
-        }
-        stage('Jacoco sends') {
-             steps {
-                echo "Jacoco sends..."
-                sh './gradlew sonar'
-             }
-        }
-//         stage('Build') {
-//              steps {
-//                 sh './gradlew clean jar'
-//                 echo "build..."
-//              }
-//         }
-        stage('Deploy') {
-             steps {
-                echo "Deploy..."
+
+        stage('JUNit Reports') {
+            steps {
+                    junit 'target/surefire-reports/*.xml'
+		                echo "Publishing JUnit reports"
             }
         }
+
+        stage('Jacoco Reports') {
+            steps {
+                  jacoco()
+                  echo "Publishing Jacoco Code Coverage Reports";
+            }
+        }
+
+	stage('SonarQube analysis') {
+            steps {
+		// Change this as per your Jenkins Configuration
+                withSonarQubeEnv('SonarQube') {
+                    bat 'mvn package sonar:sonar'
+                }
+            }
+        }
+
+    }
+    post {
+
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+
     }
 }
