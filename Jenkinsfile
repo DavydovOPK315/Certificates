@@ -10,7 +10,7 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh 'mvn package'
+                'mvn package'
 		        echo "Maven Package Goal Executed Successfully!";
             }
         }
@@ -33,7 +33,7 @@ pipeline {
             steps {
 		// Change this as per your Jenkins Configuration
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn package sonar:sonar'
+                    'mvn package sonar:sonar'
                 }
             }
         }
