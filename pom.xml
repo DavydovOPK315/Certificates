@@ -14,7 +14,7 @@
     <artifactId>Certificates</artifactId>
 
     <!--    this-->
-    <packaging>war</packaging>
+    <!--    <packaging>war</packaging>-->
 
     <version>0.0.1-SNAPSHOT</version>
     <name>Certificates</name>
@@ -38,6 +38,10 @@
         <log4j2.project.version>1.2.17</log4j2.project.version>
 
         <jacoco.version>0.8.8</jacoco.version>
+
+        <sonar.organization>davydovopk315</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
         <!--        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>-->
         <!--        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>-->
         <!--        <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>-->
@@ -195,11 +199,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <layers>-->
-<!--                        <enabled>true</enabled>-->
-<!--                    </layers>-->
-<!--                </configuration>-->
+                <!--                <configuration>-->
+                <!--                    <layers>-->
+                <!--                        <enabled>true</enabled>-->
+                <!--                    </layers>-->
+                <!--                </configuration>-->
             </plugin>
 
             <plugin>
