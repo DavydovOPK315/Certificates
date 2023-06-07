@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    public static final String NOT_FOUND = " not found";
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,19 +33,19 @@ public class UserService {
 
     public UserResponseModel getUserById(long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + NOT_FOUND));
         return modelMapper.map(user, UserResponseModel.class);
     }
 
     public UserResponseModel getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + email + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + email + NOT_FOUND));
         return modelMapper.map(user, UserResponseModel.class);
     }
 
     public UsersOrdersResponseModel getUsersOrdersById(long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + NOT_FOUND));
         List<Order> orders = user.getOrders();
         UsersOrdersResponseModel userResponseModel = modelMapper.map(user, UsersOrdersResponseModel.class);
         userResponseModel.setOrders(mapList(orders, OrderResponseModel.class));
