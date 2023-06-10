@@ -1,5 +1,6 @@
 keycloak-port: 8080
-keycloak-issuer: http://localhost:${keycloak-port}/auth/realms/demo
+#keycloak-issuer: http://localhost:${keycloak-port}/auth/realms/demo
+keycloak-issuer: http://host.docker.internal:${keycloak-port}/auth/realms/demo
 server:
   port: 9090
   error:
