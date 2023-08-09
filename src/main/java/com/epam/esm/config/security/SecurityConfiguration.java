@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +68,14 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .httpBasic().disable()
+                .cors().configurationSource(request -> {
+                    var cors = new CorsConfiguration();
+                    cors.setAllowedOrigins(List.of("http://127.0.0.1:80", "http://localhost:3000", "http://localhost:8080", "http://localhost:9090"));
+                    cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    cors.setAllowedHeaders(List.of("*"));
+                    return cors;
+                })
+                .and().httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests(authorizeConfig -> {
                     authorizeConfig.antMatchers(HttpMethod.GET, "/certificates/**").permitAll();
@@ -88,9 +96,9 @@ public class SecurityConfiguration {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider())
-                .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer
-                        .jwt(jwtConfigurer -> jwtConfigurer
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                .oauth2ResourceServer(resourceServerConfigurer ->
+                        resourceServerConfigurer.jwt(jwtConfigurer ->
+                                jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();
     }
 
@@ -116,8 +124,8 @@ public class SecurityConfiguration {
                 if (realmAccess.get("roles") == null) {
                     return grantedAuthorities;
                 }
-                JSONArray roles = (JSONArray) realmAccess.get("roles");
 
+                JSONArray roles = (JSONArray) realmAccess.get("roles");
                 final List<SimpleGrantedAuthority> keycloakAuthorities = roles.stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList());

@@ -57,6 +57,8 @@ public class CertificateService {
         }
         String date = LocalDateTime.now().toString();
         certificate.setId(id);
+        certificate.setName(certificateRequestModel.getName());
+        certificate.setDescription(certificateRequestModel.getDescription());
         certificate.setLastUpdateDate(date);
         certificateRepository.update(certificate);
     }
@@ -95,6 +97,10 @@ public class CertificateService {
                 .collect(Collectors.toList());
         certificateResponseModel.setTagResponseModels(tagResponseModels);
         return certificateResponseModel;
+    }
+
+    public Long getTotalCount() {
+        return certificateRepository.getTotalCount();
     }
 
     public List<CertificateResponseModel> getAll(int pageNumber, int pageSize) {

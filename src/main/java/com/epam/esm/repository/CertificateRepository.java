@@ -31,6 +31,11 @@ public class CertificateRepository {
         entityManager.merge(certificate);
     }
 
+    public Long getTotalCount() {
+        return (Long) entityManager.createQuery("SELECT COUNT(c.id) from Certificate c")
+                .getSingleResult();
+    }
+
     public List<Certificate> findAll(int pageNumber, int pageSize) {
         return entityManager.createQuery("select c from Certificate c", Certificate.class)
                 .setFirstResult((pageNumber - 1) * pageSize)

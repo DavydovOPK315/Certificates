@@ -54,8 +54,11 @@ pipeline {
               }
          stage("Deploy") {
                 steps {
-
-
+                    echo "deploy..."
+                     sh 'java -jar target/Certificates-0.0.1-SNAPSHOT.jar'
+                  // sh 'docker build -t certificates-spring-boot:spring-docker .'
+                  // sh "docker run -p 9090:9090 certificates-spring-boot:spring-docker"
+                    echo "deploy end!"
                 }
          }
     }

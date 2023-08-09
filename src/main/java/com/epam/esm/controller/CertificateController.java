@@ -5,6 +5,7 @@ import com.epam.esm.dto.certificate.CertificateResponseModel;
 import com.epam.esm.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,14 @@ public class CertificateController {
                                                                  @RequestParam(defaultValue = "20") int pageSize) {
         List<CertificateResponseModel> certificates = certificateService.getAll(pageNumber, pageSize);
         certificates.forEach(this::generateHateoas);
-        return ResponseEntity.ok(certificates);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        String totalCount = certificateService.getTotalCount().toString();
+        responseHeaders.set("Access-Control-Expose-Headers", "x-total-count");
+        responseHeaders.set("x-total-count", totalCount);
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(certificates);
     }
 
     /**
@@ -82,7 +90,7 @@ public class CertificateController {
                                                                                     @RequestParam(defaultValue = "20") int pageSize) {
         List<CertificateResponseModel> certificates = new ArrayList<>();
 
-        if (name != null) {
+        if (name != null && name.trim().length() > 0) {
             certificates = certificateService.getAllByName(name, pageNumber, pageSize);
         } else if (description != null) {
             certificates = certificateService.getAllByDescription(description, pageNumber, pageSize);
@@ -148,7 +156,8 @@ public class CertificateController {
     public ResponseEntity<Object> update(@PathVariable long id,
                                          @RequestBody CertificateRequestModel certificateRequestModel) {
         certificateService.update(id, certificateRequestModel);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
